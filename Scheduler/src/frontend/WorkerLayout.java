@@ -16,11 +16,14 @@ import javax.swing.JLabel;
  * @author ptfil_000
  */
 public class WorkerLayout extends JPanel implements  ActionListener, ItemListener {
-    protected String[] Months={"styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"};
+    private String[] Months={"styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"};
     protected CalendarPlotter cal;
     protected JLabel Visible=new JLabel("gej");
     public WorkerLayout(){
-        Visible=new JLabel(Months[cal.getCurrentMonth()+1]);
+     
+        cal = new CalendarPlotter();
+        int i = cal.getCurrentMonth();
+        Visible=new JLabel(Months[i - 1]);
     }
     @Override
     public void actionPerformed(ActionEvent ae) {
