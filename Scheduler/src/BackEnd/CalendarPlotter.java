@@ -17,6 +17,12 @@ public final class CalendarPlotter {
     {
         cal = Calendar.getInstance();
     }
+    /** Get current month number*/
+    public int getCurrentMonth()
+    {
+        int month = cal.get(Calendar.MONTH) + 1;
+        return month;
+    }
     /** Get amount of days in specified month*/
     public int getAmountOfDays(int month){ 
         
