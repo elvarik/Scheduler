@@ -25,7 +25,7 @@ public class Frame extends JFrame implements KeyListener{
     protected int RozmiarX=10;
     protected int RozmiarY=10;
     JLabel emptyLabel = new JLabel("");
-    
+    protected WorkerLayout Asia=new WorkerLayout();
     public Frame(){
         super("Dog Scheduler");
         addKeyListener(this);
@@ -34,8 +34,9 @@ public class Frame extends JFrame implements KeyListener{
         Dimension windowSize=new Dimension(screenSize.width-15, screenSize.height-80);
         JLabel emptyLabel = new JLabel("");
         emptyLabel.setPreferredSize(windowSize);
-        
+        JLabel Zobacz_asie=Asia.Visible;
         this.getContentPane().add(emptyLabel, BorderLayout.CENTER);
+        this.getContentPane().add(Zobacz_asie, BorderLayout.CENTER);
         this.setupMenuBar();
         
         this.pack();

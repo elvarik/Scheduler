@@ -10,7 +10,7 @@ package BackEnd;
  */
 public class Worker {
     private String name, surname;
-    private WorkDay;
+    //private WorkDay;
     public Worker(String name, String surname)
     {
         this.name = name;
