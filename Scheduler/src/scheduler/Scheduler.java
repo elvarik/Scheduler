@@ -4,18 +4,20 @@
  * and open the template in the editor.
  */
 package scheduler;
-
+import frontend.Frame;
+import java.awt.EventQueue;
+import java.net.MalformedURLException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author Hardkor
  */
 public class Scheduler {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-    }
     
+
+    public static void main(String[] args) {
+        Frame frame = new Frame();
+  }
 }
