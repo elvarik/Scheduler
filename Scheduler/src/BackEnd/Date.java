@@ -17,6 +17,13 @@ public class Date implements Comparator<Date>, Comparable<Date> {
     private final String[] months={"styczeń","luty","marzec","kwiecień","maj",
         "czerwiec","lipiec","sierpień","wrzesień","październik",
         "listopad","grudzień"};
+    public Date()
+    {
+        CalendarPlotter cal = new CalendarPlotter();
+        this.day = cal.getCurrentDay();
+        this.month = cal.getCurrentMonth();
+        this.year = cal.getCurrentYear();
+    }
     public Date(int day,int month, int year){
         this.day = day;
         this.month = month;

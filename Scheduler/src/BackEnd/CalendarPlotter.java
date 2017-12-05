@@ -17,19 +17,25 @@ public final class CalendarPlotter {
     {
         cal = Calendar.getInstance();
     }
-    /** Get current month number*/
+    /** Gets current day number*/
+    public int getCurrentDay()
+    {
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        return day;
+    }
+    /** Gets current month number*/
     public int getCurrentMonth()
     {
         int month = cal.get(Calendar.MONTH)+1;
         return month;
     }
-    /** Get current year number*/
+    /** Gets current year number*/
     public int getCurrentYear()
     {
         int year = cal.get(Calendar.YEAR);
         return year;
     }
-    /** Get amount of days in specified month*/
+    /** Gets amount of days in specified month*/
     public int getAmountOfDays(int month){ 
         
         if(month ==0){
@@ -39,7 +45,7 @@ public final class CalendarPlotter {
         yearMonthObj = YearMonth.of(year, month);
         return 0;
     }
-    /** Get amount of days in specified month and year*/
+    /** Gets amount of days in specified month and year*/
     public int getAmountOfDays(int month, int year){ 
         
         if(month ==0){
@@ -48,7 +54,7 @@ public final class CalendarPlotter {
         yearMonthObj = YearMonth.of(year, month);
         return yearMonthObj.lengthOfMonth();
     }
-    /** Get amount of days in current month*/
+    /** Gets amount of days in current month*/
     public int getAmountOfDays(){ 
         
         int year = cal.get(Calendar.YEAR);
