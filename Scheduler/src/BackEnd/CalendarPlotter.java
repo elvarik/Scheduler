@@ -23,6 +23,12 @@ public final class CalendarPlotter {
         int month = cal.get(Calendar.MONTH)+1;
         return month;
     }
+    /** Get current year number*/
+    public int getCurrentYear()
+    {
+        int year = cal.get(Calendar.YEAR);
+        return year;
+    }
     /** Get amount of days in specified month*/
     public int getAmountOfDays(int month){ 
         

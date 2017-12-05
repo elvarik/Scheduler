@@ -10,5 +10,8 @@ package BackEnd;
  * @author Hardkor
  */
 public class WorkDay {
-    
+    public WorkDay()
+    {
+        
+    }
 }
