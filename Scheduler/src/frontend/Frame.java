@@ -24,22 +24,23 @@ import javax.swing.JMenuItem;
 public class Frame extends JFrame implements KeyListener{
     protected int RozmiarX=10;
     protected int RozmiarY=10;
-    JLabel emptyLabel = new JLabel("");
     protected WorkerLayout Asia=new WorkerLayout();
     public Frame(){
         super("Dog Scheduler");
         addKeyListener(this);
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension windowSize=new Dimension(screenSize.width-15, screenSize.height-80);
+        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.8), (int)((double)screenSize.height*0.8));
         JLabel emptyLabel = new JLabel("");
-        emptyLabel.setPreferredSize(windowSize);
+        this.setPreferredSize(windowSize);
+
         JLabel Zobacz_asie=Asia.Visible;
         this.getContentPane().add(emptyLabel, BorderLayout.CENTER);
         this.getContentPane().add(Zobacz_asie, BorderLayout.CENTER);
         this.setupMenuBar();
-        
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
     
@@ -59,6 +60,9 @@ public class Frame extends JFrame implements KeyListener{
             System.exit(0);
         });
         JMenuItem MenuItem2 = new JMenuItem("Zarządzaj pracownikami");
+        MenuItem2.addActionListener((ActionEvent event) -> {
+            this.okienko();
+        });
         MenuItem2.setToolTipText("Dodaj lub usuń pracownika");
         file.add(MenuItem2);
         file.add(MenuItem1);
@@ -68,6 +72,21 @@ public class Frame extends JFrame implements KeyListener{
         setJMenuBar(menubar);
     }
     
+    
+    
+    public void okienko(){
+        JFrame pracownicy=new JFrame();
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        Dimension screenSize = kit.getScreenSize();
+        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
+        JLabel emptyLabel = new JLabel("Pracownicy");
+        pracownicy.setPreferredSize(windowSize);
+        pracownicy.getContentPane().add(emptyLabel, BorderLayout.NORTH);
+        pracownicy.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        pracownicy.pack();
+        pracownicy.setLocationRelativeTo(null);
+        pracownicy.setVisible(true);
+    }
     @Override
     public void keyTyped(KeyEvent ke) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

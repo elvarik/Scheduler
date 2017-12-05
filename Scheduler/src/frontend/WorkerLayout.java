@@ -19,8 +19,7 @@ public class WorkerLayout extends JPanel implements  ActionListener, ItemListene
     private String[] Months={"styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"};
     protected CalendarPlotter cal;
     protected JLabel Visible=new JLabel("gej");
-    public WorkerLayout(){
-     
+    public WorkerLayout(){   
         cal = new CalendarPlotter();
         int i = cal.getCurrentMonth();
         Visible=new JLabel(Months[i - 1]);
