@@ -5,7 +5,7 @@
  */
 package BackEnd;
 import java.util.Map;
-import java.util.Collection;
+import java.util.Set;
 import java.util.TreeMap;
 /**
  *
@@ -25,9 +25,16 @@ public class Worker {
     {
         workDays.put(date, workDay);
     }
+    /** Gets Work Day of specified date on a Worker list. List is sorted by date automatically*/
     public WorkDay getWorkDay(Date date)
     {
         return workDays.get(date);
+    }
+    /** Gets array of all dates on a worker's list*/
+    public Date[] getWorkDates()
+    {
+        Set<Date> workDates = workDays.keySet();
+        return workDates.toArray(new Date[workDates.size()]);
     }
     @Override
     public String toString() {
