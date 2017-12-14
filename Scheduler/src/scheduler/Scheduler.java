@@ -19,7 +19,7 @@ public class Scheduler {
     
     
     public static void main(String[] args) {
-      
+      //próba mikrofonu
         Frame frame = new Frame();
   }
 }
