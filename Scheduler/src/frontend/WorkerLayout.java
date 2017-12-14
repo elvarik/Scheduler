@@ -18,11 +18,16 @@ import javax.swing.JLabel;
 public class WorkerLayout extends JPanel implements  ActionListener, ItemListener {
     private String[] Months={"styczeń","luty","marzec","kwiecień","maj","czerwiec","lipiec","sierpień","wrzesień","październik","listopad","grudzień"};
     protected CalendarPlotter cal;
-    protected JLabel Visible=new JLabel("gej");
+    int day=0;
+    int month=0;
+    protected JLabel Month=new JLabel("gej");
+    protected JLabel Day= new JLabel("gej");
     public WorkerLayout(){   
         cal = new CalendarPlotter();
-        int i = cal.getCurrentMonth();
-        Visible=new JLabel(Months[i - 1]);
+        month = cal.getCurrentMonth();
+        day= cal.getCurrentDay();
+        Month=new JLabel(Months[month - 1]);
+        Day= new JLabel(Integer.toString(day));
     }
     @Override
     public void actionPerformed(ActionEvent ae) {

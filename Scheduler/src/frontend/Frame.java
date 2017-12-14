@@ -6,11 +6,15 @@
 package frontend;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -38,19 +42,16 @@ public class Frame extends JFrame implements KeyListener{
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension windowSize=new Dimension((int)((double)screenSize.width*0.8), (int)((double)screenSize.height*0.8));
-        JLabel emptyLabel = new JLabel("");
+       
         this.setPreferredSize(windowSize);
-
-        JLabel Zobacz_asie=Asia.Visible;
-        this.getContentPane().add(emptyLabel, BorderLayout.CENTER);
-        this.getContentPane().add(Zobacz_asie, BorderLayout.CENTER);
+        setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.6));
+        
         this.setupMenuBar();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
-    
     
     
     private void setupMenuBar()
@@ -107,6 +108,41 @@ public class Frame extends JFrame implements KeyListener{
     @Override
     public void keyReleased(KeyEvent ke) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void setComponents(int h, int w) {
+        GridBagLayout masterGridBag;
+        masterGridBag = new GridBagLayout();
+        GridBagConstraints constraints = new GridBagConstraints();        
+        masterGridBag.setConstraints(this, constraints);
+        JButton lewo=new JButton("<<<");
+        JButton prawo=new JButton(">>>");
+        JLabel Zobacz_asie=Asia.Month;
+        JLabel emptyLabel = new JLabel("gej");
+        JLabel Zobacz_asie1=Asia.Day;
+        //this.getContentPane().add(lewo, BorderLayout.CENTER);
+        
+        this.setLayout(masterGridBag);
+        constraints.fill = GridBagConstraints.WEST;
+        constraints.ipadx=0;
+        constraints.ipady=h;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        this.add(lewo,constraints);
+        
+        this.setBackground(new Color(179,184, 254));
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipadx =w;
+        constraints.gridy = 0;
+        constraints.gridx = 1;
+        this.add(Zobacz_asie,constraints);
+        
+        constraints.fill = GridBagConstraints.EAST;
+        constraints.ipadx=0;
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        this.add(prawo,constraints);
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
