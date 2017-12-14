@@ -25,6 +25,10 @@ public class Worker {
     {
         workDays.put(date, workDay);
     }
+    public WorkDay getWorkDay(Date date)
+    {
+        return workDays.get(date);
+    }
     @Override
     public String toString() {
         return name + " " + surname;
