@@ -20,6 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -112,36 +113,41 @@ public class Frame extends JFrame implements KeyListener{
 
     private void setComponents(int h, int w) {
         GridBagLayout masterGridBag;
+        JPanel father=new JPanel();
         masterGridBag = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();        
-        masterGridBag.setConstraints(this, constraints);
+        masterGridBag.setConstraints(father, constraints);
         JButton lewo=new JButton("<<<");
         JButton prawo=new JButton(">>>");
         JLabel Zobacz_asie=Asia.Month;
         JLabel emptyLabel = new JLabel("gej");
         JLabel Zobacz_asie1=Asia.Day;
+        Month miesiąc=new Month(h,w);
+        
         //this.getContentPane().add(lewo, BorderLayout.CENTER);
         
-        this.setLayout(masterGridBag);
+        father.setLayout(masterGridBag);
         constraints.fill = GridBagConstraints.WEST;
         constraints.ipadx=0;
         constraints.ipady=h;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        this.add(lewo,constraints);
+        father.add(lewo,constraints);
         
-        this.setBackground(new Color(179,184, 254));
+        //this.setBackground(new Color(179,184, 254));
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.ipadx =w;
+        constraints.ipadx =0;
         constraints.gridy = 0;
         constraints.gridx = 1;
-        this.add(Zobacz_asie,constraints);
+        father.add(miesiąc,constraints);
         
         constraints.fill = GridBagConstraints.EAST;
         constraints.ipadx=0;
         constraints.gridx = 2;
         constraints.gridy = 0;
-        this.add(prawo,constraints);
+        father.add(prawo,constraints);
+        
+        this.add(father);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
