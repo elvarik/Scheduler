@@ -19,34 +19,46 @@ import javax.swing.JPanel;
 public class Month extends JPanel{
     int h=0;
     int w=0;
-    int x=200;//długość dnia
-    int y=40;//wysokość dnia
+    int x=100;//długość dnia
+    int y=20;//wysokość dnia
+    JPanel parentPanel=new JPanel();
     CalendarPlotter Cal=new CalendarPlotter();
     public Month(int h,int w){
         this.h=h;
         this.w=w;
-        GridBagLayout GridBag;
-        GridBag = new GridBagLayout();
-        int number=Cal.getAmountOfDays()+1;
-        GridBagConstraints c = new GridBagConstraints();        
-        GridBag.setConstraints(this, c);
-        int licznik=0;
+        compose(h,w);
+        this.add(parentPanel);
+        
+        }
+    
+    public void compose(int h,int w){
+         int licznik=1;
         int length=w/x;
         int height=h/y;
+        int number=Cal.getAmountOfDays()+1;
+        setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();    
+        GridBagLayout GridBag;
+        GridBag = new GridBagLayout();
+        GridBag.setConstraints(parentPanel, c);
         System.out.println(Integer.toString(height)+" "+Integer.toString(length));
-        
         for (int j=0;j<height;j++){
+            
         for (int i=0;i<length;i++){
+            JButton guzik=new JButton(Integer.toString(licznik));
         if(licznik<number){
-        JButton guzik=new JButton(Integer.toString(licznik));
         c.fill = GridBagConstraints.HORIZONTAL;
+        c.ipady = 40;
+        c.ipadx = 30;
         c.gridx = i;
         c.gridy = j;
         this.add(guzik,c);
         System.out.println(Integer.toString(i)+" "+Integer.toString(j));
         licznik++;
         }
+        
         }
-        }
+    }
+    
     }
 }

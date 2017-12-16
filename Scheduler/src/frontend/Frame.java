@@ -7,6 +7,7 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -113,7 +114,7 @@ public class Frame extends JFrame implements KeyListener{
 
     private void setComponents(int h, int w) {
         GridBagLayout masterGridBag;
-        JPanel father=new JPanel();
+        Container father=this.getContentPane();
         masterGridBag = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();        
         masterGridBag.setConstraints(father, constraints);
@@ -147,7 +148,7 @@ public class Frame extends JFrame implements KeyListener{
         constraints.gridy = 0;
         father.add(prawo,constraints);
         
-        this.add(father);
+        //this.add(father);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
