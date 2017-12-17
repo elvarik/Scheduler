@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 /**
@@ -45,7 +46,7 @@ public class Month extends JPanel{
         for (int j=0;j<height;j++){
             
         for (int i=0;i<length;i++){
-            JButton guzik=new JButton(Integer.toString(licznik));
+            JLabel guzik=new JLabel(Integer.toString(licznik));
         if(licznik<number){
         c.fill = GridBagConstraints.HORIZONTAL;
         c.ipady = 40;
