@@ -6,6 +6,7 @@
 package frontend;
 
 import BackEnd.CalendarPlotter;
+import BackEnd.Worker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.ComponentOrientation;
@@ -19,6 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -39,31 +42,42 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     protected JButton lewo=new JButton(" < ");
     protected JButton prawo=new JButton(" > ");
     protected JPanel father=(JPanel)this.getContentPane();
+
+    private List<Worker> workers;
+    
     CalendarPlotter Cal=new CalendarPlotter();
     JPanel header=new JPanel();
+    JPanel sidePanel = new JPanel();
     public Frame(){
         
         super("Scheduler");
         //father.setBackground(new Color(206, 224, 218));
         //header.setBackground(new Color(206, 224, 218));
-        setResizable(false);
+        //setResizable(false);
         addKeyListener(this);
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
         }
+        
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension windowSize=new Dimension((int)((double)screenSize.width*0.50), (int)((double)screenSize.height*0.8));
        
-        this.setPreferredSize(windowSize);
+        //this.setPreferredSize(windowSize);
         setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
         this.setupMenuBar();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
+        
+        
+        
+        workers = new ArrayList<>();
+        workers.add(new Worker("Piotr Filipkowski"));
+        workers.add(new Worker("Marcin Gałecki"));
     }
     
     
@@ -96,17 +110,21 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     
     
     public void okienko(){
-        JFrame pracownicy=new JFrame();
-        Toolkit kit = Toolkit.getDefaultToolkit();
-        Dimension screenSize = kit.getScreenSize();
-        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
-        JLabel emptyLabel = new JLabel("Pracownicy");
-        pracownicy.setPreferredSize(windowSize);
-        pracownicy.getContentPane().add(emptyLabel, BorderLayout.PAGE_START);
-        pracownicy.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        pracownicy.pack();
-        pracownicy.setLocationRelativeTo(null);
-        pracownicy.setVisible(true);
+//        JFrame pracownicy=new JFrame();
+//        Toolkit kit = Toolkit.getDefaultToolkit();
+//        Dimension screenSize = kit.getScreenSize();
+//        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
+//        JLabel emptyLabel = new JLabel("Pracownicy");
+//        pracownicy.setPreferredSize(windowSize);
+//        pracownicy.getContentPane().add(emptyLabel, BorderLayout.PAGE_START);
+//        pracownicy.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+//        pracownicy.pack();
+//        pracownicy.setLocationRelativeTo(null);
+//        pracownicy.setVisible(true);
+           List<Worker> tempWorkers = new ArrayList<>();
+           tempWorkers.addAll(workers);
+          WorkersWindow workersWindow = new WorkersWindow(this,tempWorkers);
+          workers = tempWorkers;
     }
     @Override
     public void keyTyped(KeyEvent ke) {
@@ -127,10 +145,10 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
                 if(source==lewo){
-                    okienko();
+ 
                 }
                 if(source==prawo){
-                    okienko();
+                  
                 }
     }
 
@@ -144,13 +162,14 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         masterGridBag.setConstraints(father, constraints);
        
         JLabel emptyLabel = new JLabel(Cal.Months[Cal.getCurrentMonth()-1]+" "+Cal.getCurrentYear());
-        Month miesiąc=new Month(h,w, father.getBackground());
-        //miesiąc.setBackground(new Color(206, 224, 218));
         this.header.add(lewo);
         this.header.add(emptyLabel);
         this.header.add(prawo);
         lewo.setFocusPainted(false);
         prawo.setFocusPainted(false);
+        Month miesiąc=new Month(h,w, father.getBackground(), 12);
+        //miesiąc.setBackground(new Color(206, 224, 218));
+        
         
         father.setLayout(masterGridBag);
         //constraints.fill = GridBagConstraints.PAGE_START;

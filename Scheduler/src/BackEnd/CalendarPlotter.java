@@ -13,6 +13,7 @@ import java.time.YearMonth;
 public final class CalendarPlotter {
    final public String[] Months={"Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec",
         "Sierpień","Wrzesień","Październik","Listopad","Grudzień"};
+   final public String[] Days={"Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota","Niedziela"};
     private Calendar cal;
     YearMonth yearMonthObj;
     public CalendarPlotter()
@@ -40,12 +41,11 @@ public final class CalendarPlotter {
     /** Gets amount of days in specified month*/
     public int getAmountOfDays(int month){ 
         
-        if(month ==0){
-            return -1;
-        }
         int year = cal.get(Calendar.YEAR);
+        
         yearMonthObj = YearMonth.of(year, month);
-        return 0;
+        
+        return yearMonthObj.lengthOfMonth();
     }
     /** Gets amount of days in specified month and year*/
     public int getAmountOfDays(int month, int year){ 

@@ -30,13 +30,15 @@ public class Month extends JPanel {
     JPanel parentPanel=new JPanel();
     CalendarPlotter Cal=new CalendarPlotter();
     JLabel etykieta=new JLabel("");
+    private int monthIndex;
     public Month(){
         
     }
-    public Month(int h,int w, Color background){
+    public Month(int h,int w, Color background, int monthIndex){
         this.h=h;
         this.w=w;
         this.background = background;
+        this.monthIndex = monthIndex;
         compose(h,w);
         this.add(parentPanel);
         this.CurrentMonth=Cal.getCurrentMonth();
@@ -46,7 +48,7 @@ public class Month extends JPanel {
         int licznik=1;
         int length=w/x;
         int height=h/y;
-        int number=Cal.getAmountOfDays()+1;
+        int number=Cal.getAmountOfDays(monthIndex)+1;
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();    
         GridBagLayout GridBag;
@@ -56,18 +58,19 @@ public class Month extends JPanel {
         c.gridx = 0;
         c.gridy = 0;
         int g=0;
+        
         for (int j=1;j<=number/7+1;j++){
         for (int i=0;i<7;i++){
             Day guzik=new Day(Integer.toString(licznik), background);
-        if(licznik<number){
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.ipady = 70;
-        c.ipadx = 60;
-        c.gridx = i;
-        c.gridy = j;
-        this.add(guzik,c);
-        System.out.println(Integer.toString(i)+" "+Integer.toString(j));
-        licznik++;
+            if(licznik<number){
+            c.fill = GridBagConstraints.HORIZONTAL;
+            c.ipady = 70;
+            c.ipadx = 60;
+            c.gridx = i;
+            c.gridy = j;
+            this.add(guzik,c);
+            System.out.println(Integer.toString(i)+" "+Integer.toString(j));
+            licznik++;
         }
         
         }

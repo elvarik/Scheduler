@@ -12,12 +12,11 @@ import java.util.TreeMap;
  * @author Hardkor
  */
 public class Worker {
-    private String name, surname;
+    private String nameSurname;
     private Map<Date, WorkDay> workDays;
-    public Worker(String name, String surname)
+    public Worker(String nameSurname)
     {
-        this.name = name;
-        this.surname = surname;
+        this.nameSurname = nameSurname;
         workDays = new TreeMap<>();
     }
     /** Puts Work Day on specified date on a Worker list. List is sorted by date automatically*/
@@ -38,7 +37,7 @@ public class Worker {
     }
     @Override
     public String toString() {
-        return name + " " + surname;
+        return nameSurname;
     }
     
 }
