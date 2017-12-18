@@ -149,6 +149,8 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         this.header.add(lewo);
         this.header.add(emptyLabel);
         this.header.add(prawo);
+        lewo.setFocusPainted(false);
+        prawo.setFocusPainted(false);
         
         father.setLayout(masterGridBag);
         //constraints.fill = GridBagConstraints.PAGE_START;
