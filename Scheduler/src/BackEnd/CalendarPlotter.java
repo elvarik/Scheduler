@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 package BackEnd;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.time.YearMonth;
+import java.util.GregorianCalendar;
 /**
  *
  * @author Hardkor
@@ -13,7 +15,7 @@ import java.time.YearMonth;
 public final class CalendarPlotter {
    final public String[] Months={"Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec",
         "Sierpień","Wrzesień","Październik","Listopad","Grudzień"};
-   final public String[] Days={"Poniedziałek","Wtorek","Środa","Czwartek","Piątek","Sobota","Niedziela"};
+   final public String[] Days={"poniedziałek","wtorek","środa","czwartek","piątek","sobota","niedziela"};
     private Calendar cal;
     YearMonth yearMonthObj;
     public CalendarPlotter()
@@ -25,6 +27,12 @@ public final class CalendarPlotter {
     {
         int day = cal.get(Calendar.DAY_OF_MONTH);
         return day;
+    }
+    public String getDayName(int day, int month, int year)
+    {
+        java.util.Date date1 = (new GregorianCalendar(year, month-1, day)).getTime();
+        String dayName = new SimpleDateFormat("EEEE").format(date1);
+        return dayName;
     }
     /** Gets current month number*/
     public int getCurrentMonth()

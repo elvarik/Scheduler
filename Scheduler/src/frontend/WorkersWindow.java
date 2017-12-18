@@ -73,6 +73,7 @@ public class WorkersWindow extends JFrame implements ListSelectionListener,Actio
         addButton.addActionListener(this);
         addButton.setEnabled(false);
         deleteButton = new JButton(" - ");
+        deleteButton.setEnabled(false);
         employeeName = new JTextField(15);
         employeeName.addActionListener(this);
         employeeName.getDocument().addDocumentListener(this);
@@ -88,7 +89,10 @@ public class WorkersWindow extends JFrame implements ListSelectionListener,Actio
 
     @Override
     public void valueChanged(ListSelectionEvent lse) {
-        int deleteIndex = workersList.getSelectedIndex();
+        if(workersList.getSelectedIndices().length > 0)
+            deleteButton.setEnabled(true);
+        else
+            deleteButton.setEnabled(false);
     }
 
     @Override

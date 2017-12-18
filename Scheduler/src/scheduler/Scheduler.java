@@ -11,6 +11,7 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import BackEnd.CalendarPlotter;
+
 /**
  *
  * @author Hardkor
@@ -21,5 +22,8 @@ public class Scheduler {
     public static void main(String[] args) {
       //próba mikrofonu
         Frame frame = new Frame();
+        
+        
+        
   }
 }

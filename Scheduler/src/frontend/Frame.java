@@ -31,6 +31,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EmptyBorder;
 
 
 /**
@@ -42,18 +43,18 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     protected JButton lewo=new JButton(" < ");
     protected JButton prawo=new JButton(" > ");
     protected JPanel father=(JPanel)this.getContentPane();
-
+    private JLabel headerLabel;
     private List<Worker> workers;
-    
+    private int month, year;
+    private Month miesiąc;
     CalendarPlotter Cal=new CalendarPlotter();
     JPanel header=new JPanel();
-    JPanel sidePanel = new JPanel();
     public Frame(){
         
         super("Scheduler");
         //father.setBackground(new Color(206, 224, 218));
         //header.setBackground(new Color(206, 224, 218));
-        //setResizable(false);
+        setResizable(false);
         addKeyListener(this);
 
         try {
@@ -63,9 +64,22 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.50), (int)((double)screenSize.height*0.8));
-       
+        //Dimension windowSize=new Dimension((int)((double)screenSize.width*0.50), (int)((double)screenSize.height*0.8));
+       month = Cal.getCurrentMonth();
+       year = Cal.getCurrentYear();
         //this.setPreferredSize(windowSize);
+        headerLabel = new JLabel(Cal.Months[month - 1]+" "+year);
+        this.header.add(lewo);
+        this.header.add(headerLabel);
+        this.header.add(prawo);
+        father.add(header);
+        lewo.setFocusPainted(false);
+        prawo.setFocusPainted(false);
+        lewo.addActionListener(this);
+        prawo.addActionListener(this);
+        header.setBorder(new EmptyBorder(10,10,25,25));
+        miesiąc = new Month(father.getBackground(), month, year);
+        //miesiąc.reAssing(month, year);
         setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
         this.setupMenuBar();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,6 +92,8 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         workers = new ArrayList<>();
         workers.add(new Worker("Piotr Filipkowski"));
         workers.add(new Worker("Marcin Gałecki"));
+        
+        
     }
     
     
@@ -145,10 +161,37 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
                 if(source==lewo){
- 
+                    if(month == 1)
+                    {
+                        month= 12;
+                        year--;
+                    }
+                    else
+                        month--;
+                    
+                    father.remove(1);
+                    headerLabel.setText(Cal.Months[month - 1]+" "+ year);
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
+                    this.pack();
+                    
                 }
-                if(source==prawo){
-                  
+                else if(source==prawo){
+                    if(month==12)
+                    {
+                        month = 1;
+                        year++;
+                    }
+                    else
+                        month++;
+                    
+                    father.remove(1);
+                    headerLabel.setText(Cal.Months[month - 1]+" "+ year);
+                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                    setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
+                    this.pack();
+                    
+                    
                 }
     }
 
@@ -161,33 +204,22 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         GridBagConstraints constraints = new GridBagConstraints();        
         masterGridBag.setConstraints(father, constraints);
        
-        JLabel emptyLabel = new JLabel(Cal.Months[Cal.getCurrentMonth()-1]+" "+Cal.getCurrentYear());
-        this.header.add(lewo);
-        this.header.add(emptyLabel);
-        this.header.add(prawo);
-        lewo.setFocusPainted(false);
-        prawo.setFocusPainted(false);
-        Month miesiąc=new Month(h,w, father.getBackground(), 12);
+        
+        
         //miesiąc.setBackground(new Color(206, 224, 218));
         
         
         father.setLayout(masterGridBag);
-        //constraints.fill = GridBagConstraints.PAGE_START;
-        constraints.anchor=GridBagConstraints.PAGE_START;
-        constraints.weighty=1;
-        constraints.ipadx=0;
-        constraints.ipady=0;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        father.add(header,constraints);
-        lewo.addActionListener(this);
-        prawo.addActionListener(this);
+        miesiąc.reAssing(month, year);
+        
+        
         
 
         //constraints.fill = GridBagConstraints.PAGE_START;
         constraints.anchor=GridBagConstraints.PAGE_START;
-        constraints.weighty=15;
-        constraints.ipadx =0;
+        constraints.weighty=0;
+        constraints.ipadx = 0;
+        constraints.ipady = 0;
         constraints.gridy = 1;
         constraints.gridx = 0;
         father.add(miesiąc,constraints);

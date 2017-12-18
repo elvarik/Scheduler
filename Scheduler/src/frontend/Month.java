@@ -30,51 +30,92 @@ public class Month extends JPanel {
     JPanel parentPanel=new JPanel();
     CalendarPlotter Cal=new CalendarPlotter();
     JLabel etykieta=new JLabel("");
-    private int monthIndex;
+    private GridBagLayout GridBag;
+    private GridBagConstraints c;
+    private int monthIndex, year;
     public Month(){
         
     }
-    public Month(int h,int w, Color background, int monthIndex){
+    public Month(Color background, int monthIndex, int year){
+        
         this.h=h;
         this.w=w;
         this.background = background;
         this.monthIndex = monthIndex;
-        compose(h,w);
+        this.year = year;
+        setLayout(new GridBagLayout());
+        compose();
         this.add(parentPanel);
         this.CurrentMonth=Cal.getCurrentMonth();
         }
-    
-    public void compose(int h,int w){
+    public void reAssing(int monthIndex, int year)
+    {
+        this.monthIndex = monthIndex;
+        this.year = year;
+        this.removeAll();
+        compose();
+    }
+    public void compose(){
         int licznik=1;
-        int length=w/x;
-        int height=h/y;
-        int number=Cal.getAmountOfDays(monthIndex)+1;
-        setLayout(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();    
-        GridBagLayout GridBag;
+
+        int number=Cal.getAmountOfDays(monthIndex,year)+1;
+        
+        c = new GridBagConstraints();
         GridBag = new GridBagLayout();
         GridBag.setConstraints(parentPanel, c);
-        System.out.println(Integer.toString(height)+" "+Integer.toString(length));
+        
         c.gridx = 0;
         c.gridy = 0;
         int g=0;
-        
+        String firstDay = Cal.getDayName(1, monthIndex, year);
+        int counter = 0;
+        while(true)
+        {
+            if(firstDay.equals(Cal.Days[counter]))
+                break;
+            counter++;
+        }
+        number+=counter;
+        counter++;
+        for(int i = 0; i < 7; i++)
+        {
+            JLabel dayName = new JLabel(Cal.Days[i]);
+            //c.fill = GridBagConstraints.CENTER;
+            c.gridx = i;
+            c.gridy = 0;
+            this.add(dayName,c);
+            
+        }
+        int currentDay = 1;
         for (int j=1;j<=number/7+1;j++){
         for (int i=0;i<7;i++){
-            Day guzik=new Day(Integer.toString(licznik), background);
-            if(licznik<number){
-            c.fill = GridBagConstraints.HORIZONTAL;
-            c.ipady = 70;
-            c.ipadx = 60;
-            c.gridx = i;
-            c.gridy = j;
-            this.add(guzik,c);
-            System.out.println(Integer.toString(i)+" "+Integer.toString(j));
+            if(counter>licznik){
+                JPanel empty=new JPanel();
+                if(licznik<number){
+                    c.fill = GridBagConstraints.HORIZONTAL;
+                    c.ipady = 70;
+                    c.ipadx = 60;
+                    c.gridx = i;
+                    c.gridy = j+1;
+                    this.add(empty,c);  
+                }
+            }
+            else{
+                Day guzik=new Day(Integer.toString(currentDay), background);
+                if(licznik<number){
+                    c.fill = GridBagConstraints.HORIZONTAL;
+                    c.ipady = 70;
+                    c.ipadx = 60;
+                    c.gridx = i;
+                    c.gridy = j+1;
+                    this.add(guzik,c);  
+                }
+                currentDay++;
+            
+            }
             licznik++;
-        }
         
         }
     }
-    System.out.println(Integer.toString(g));
     }
 }
