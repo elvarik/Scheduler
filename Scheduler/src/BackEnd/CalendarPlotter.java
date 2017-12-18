@@ -11,6 +11,8 @@ import java.time.YearMonth;
  * @author Hardkor
  */
 public final class CalendarPlotter {
+   final public String[] Months={"Styczeń","Luty","Marzec","Kwiecień","Maj","Czerwiec","Lipiec",
+        "Sierpień","Wrzesień","Październik","Listopad","Grudzień"};
     private Calendar cal;
     YearMonth yearMonthObj;
     public CalendarPlotter()

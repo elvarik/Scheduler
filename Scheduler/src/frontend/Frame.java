@@ -5,14 +5,18 @@
  */
 package frontend;
 
+import BackEnd.CalendarPlotter;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.JButton;
@@ -30,24 +34,31 @@ import javax.swing.UnsupportedLookAndFeelException;
  *
  * @author ptfil_000
  */
-public class Frame extends JFrame implements KeyListener{
-    protected int RozmiarX=10;
-    protected int RozmiarY=10;
+public class Frame extends JFrame implements KeyListener,ActionListener{
     protected WorkerLayout Asia=new WorkerLayout();
+    protected JButton lewo=new JButton(" < ");
+    protected JButton prawo=new JButton(" > ");
+    protected JPanel father=(JPanel)this.getContentPane();
+    CalendarPlotter Cal=new CalendarPlotter();
+    JPanel header=new JPanel();
     public Frame(){
-        super("Dog Scheduler");
+        
+        super("Scheduler");
+        //father.setBackground(new Color(206, 224, 218));
+        //header.setBackground(new Color(206, 224, 218));
+        setResizable(false);
         addKeyListener(this);
+
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
         }
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.8), (int)((double)screenSize.height*0.8));
+        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.50), (int)((double)screenSize.height*0.8));
        
         this.setPreferredSize(windowSize);
-        setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.6));
-        
+        setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
         this.setupMenuBar();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
@@ -91,7 +102,7 @@ public class Frame extends JFrame implements KeyListener{
         Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
         JLabel emptyLabel = new JLabel("Pracownicy");
         pracownicy.setPreferredSize(windowSize);
-        pracownicy.getContentPane().add(emptyLabel, BorderLayout.NORTH);
+        pracownicy.getContentPane().add(emptyLabel, BorderLayout.PAGE_START);
         pracownicy.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         pracownicy.pack();
         pracownicy.setLocationRelativeTo(null);
@@ -111,43 +122,56 @@ public class Frame extends JFrame implements KeyListener{
     public void keyReleased(KeyEvent ke) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+		Object source = e.getSource();
+                if(source==lewo){
+                    okienko();
+                }
+                if(source==prawo){
+                    okienko();
+                }
+    }
 
     private void setComponents(int h, int w) {
+        
+        
         GridBagLayout masterGridBag;
-        Container father=this.getContentPane();
+        header.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         masterGridBag = new GridBagLayout();
         GridBagConstraints constraints = new GridBagConstraints();        
         masterGridBag.setConstraints(father, constraints);
-        JButton lewo=new JButton("<<<");
-        JButton prawo=new JButton(">>>");
-        JLabel Zobacz_asie=Asia.Month;
-        JLabel emptyLabel = new JLabel("gej");
-        JLabel Zobacz_asie1=Asia.Day;
-        Month miesiąc=new Month(h,w);
-        
-        //this.getContentPane().add(lewo, BorderLayout.CENTER);
+       
+        JLabel emptyLabel = new JLabel(Cal.Months[Cal.getCurrentMonth()-1]+" "+Cal.getCurrentYear());
+        Month miesiąc=new Month(h,w, father.getBackground());
+        //miesiąc.setBackground(new Color(206, 224, 218));
+        this.header.add(lewo);
+        this.header.add(emptyLabel);
+        this.header.add(prawo);
         
         father.setLayout(masterGridBag);
-        constraints.fill = GridBagConstraints.WEST;
+        //constraints.fill = GridBagConstraints.PAGE_START;
+        constraints.anchor=GridBagConstraints.PAGE_START;
+        constraints.weighty=1;
         constraints.ipadx=0;
-        constraints.ipady=h;
+        constraints.ipady=0;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        father.add(lewo,constraints);
+        father.add(header,constraints);
+        lewo.addActionListener(this);
+        prawo.addActionListener(this);
         
-        //this.setBackground(new Color(179,184, 254));
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+
+        //constraints.fill = GridBagConstraints.PAGE_START;
+        constraints.anchor=GridBagConstraints.PAGE_START;
+        constraints.weighty=15;
         constraints.ipadx =0;
-        constraints.gridy = 0;
-        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.gridx = 0;
         father.add(miesiąc,constraints);
         
-        constraints.fill = GridBagConstraints.EAST;
-        constraints.ipadx=0;
-        constraints.gridx = 2;
-        constraints.gridy = 0;
-        father.add(prawo,constraints);
-        
+       
         //this.add(father);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
