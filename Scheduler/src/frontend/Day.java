@@ -9,14 +9,22 @@ import BackEnd.CalendarPlotter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
+import javax.swing.BoundedRangeModel;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 
+
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
 /**
  *
  * @author Pioty
@@ -35,17 +43,34 @@ public class Day extends JPanel implements MouseListener{
     }
     
     public void okienko(){
-        JFrame pracownicy=new JFrame();
+        JFrame day=new JFrame();
+        JScrollBar scrollBar = new JScrollBar();
+        scrollBar.setUnitIncrement(2);
+        scrollBar.setBlockIncrement(1);
+        day.getContentPane().setLayout(new GridBagLayout());
+        AdjustmentListener adjustmentListener = new AdjustmentListener() {
+      public void adjustmentValueChanged(AdjustmentEvent adjustmentEvent) {
+        System.out.println("Adjusted: " + adjustmentEvent.getValue());
+      }
+    };
+        scrollBar.addAdjustmentListener(adjustmentListener);
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
         Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
         JLabel emptyLabel = new JLabel(this.etykieta.getText()+" "+Cal.Months[Cal.getCurrentMonth()-1]);
-        pracownicy.setPreferredSize(windowSize);
-        pracownicy.getContentPane().add(emptyLabel, BorderLayout.NORTH);
-        pracownicy.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        pracownicy.pack();
-        pracownicy.setLocationRelativeTo(null);
-        pracownicy.setVisible(true);
+        day.setPreferredSize(windowSize);
+        day.getContentPane().setLayout(new BoxLayout(day.getContentPane(), BoxLayout.X_AXIS));
+        //day.getContentPane().add(emptyLabel);
+        
+        loadDay(day,scrollBar);
+
+        day.getContentPane().add(scrollBar, BorderLayout.LINE_END);
+        
+        
+        day.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        day.pack();
+        day.setLocationRelativeTo(null);
+        day.setVisible(true);
     }
     
     @Override
@@ -82,5 +107,79 @@ public class Day extends JPanel implements MouseListener{
         }
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    private void loadDay(JFrame day, JScrollBar b) {
+        
+        int licznik=1;
+        int monthIndex =2;
+        int year = 2017;
+        int number=Cal.getAmountOfDays(monthIndex,year)+1;
+        JPanel parentPanel=new JPanel();
+        parentPanel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        GridBagLayout GridBag = new GridBagLayout();
+        GridBag.setConstraints(parentPanel, c);
+        
+        c.gridx = 0;
+        c.gridy = 0;
+        int g=0;
+        String firstDay = Cal.getDayName(1, monthIndex, year);
+        int counter = 0;
+        while(true)
+        {
+            if(firstDay.equals(Cal.Days[counter]))
+                break;
+            counter++;
+        }
+        number+=counter;
+        counter++;
+        for(int i = 0; i < 7; i++)
+        {
+            JLabel dayName = new JLabel(Cal.Days[i]);
+            //c.fill = GridBagConstraints.CENTER;
+            c.gridx = i;
+            c.gridy = 0;
+            parentPanel.add(dayName,c);
+            
+        }
+        int currentDay = 1;
+        for (int j=1;j<=number/7+1;j++){
+        for (int i=0;i<7;i++){
+            if(counter>licznik){
+                JPanel empty=new JPanel();
+                if(licznik<number){
+                    c.fill = GridBagConstraints.HORIZONTAL;
+                    c.ipady = 70;
+                    c.ipadx = 60;
+                    c.gridx = i;
+                    c.gridy = j+1;
+                    parentPanel.add(empty,c);  
+                }
+            }
+            else{
+                JLabel guzik=new JLabel(Integer.toString(currentDay));
+                guzik.setBackground(new Color(215, 226, 223));
+                guzik.setBorder(BorderFactory.createLineBorder(new Color(215, 226, 223), 3));
+                if(licznik<number){
+                    c.fill = GridBagConstraints.HORIZONTAL;
+                    c.ipady = 70;
+                    c.ipadx = 60;
+                    c.gridx = i;
+                    c.gridy = j+1;
+                    parentPanel.add(guzik,c);  
+                }
+                currentDay++;
+            
+            }
+            licznik++;
+        
+        }
+    }   
+
+        day.getContentPane().add(parentPanel);
+    }
+    
+    
     
 }
+
