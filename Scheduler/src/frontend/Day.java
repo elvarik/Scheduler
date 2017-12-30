@@ -11,6 +11,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -25,6 +26,7 @@ import javax.swing.JScrollBar;
 
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import javax.swing.JViewport;
 /**
  *
  * @author Pioty
@@ -48,25 +50,33 @@ public class Day extends JPanel implements MouseListener{
         scrollBar.setUnitIncrement(2);
         scrollBar.setBlockIncrement(1);
         day.getContentPane().setLayout(new GridBagLayout());
-        AdjustmentListener adjustmentListener = new AdjustmentListener() {
-      public void adjustmentValueChanged(AdjustmentEvent adjustmentEvent) {
-        System.out.println("Adjusted: " + adjustmentEvent.getValue());
-      }
-    };
-        scrollBar.addAdjustmentListener(adjustmentListener);
+        JViewport viewport = new JViewport();
+        
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = kit.getScreenSize();
-        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
+        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.6));
         JLabel emptyLabel = new JLabel(this.etykieta.getText()+" "+Cal.Months[Cal.getCurrentMonth()-1]);
         day.setPreferredSize(windowSize);
         day.getContentPane().setLayout(new BoxLayout(day.getContentPane(), BoxLayout.X_AXIS));
         //day.getContentPane().add(emptyLabel);
+        Point point=new Point(10,20);
+        loadDay(day,scrollBar,viewport,point);
+        AdjustmentListener adjustmentListener = new AdjustmentListener() {
+      
+        public void adjustmentValueChanged(AdjustmentEvent adjustmentEvent) {
+        System.out.println("Adjusted: " + adjustmentEvent.getValue());
+        point.y=adjustmentEvent.getValue();
+        viewport.setViewPosition(point);
+        day.repaint();
+            }
+        };
         
-        loadDay(day,scrollBar);
-
+        
+        
+        scrollBar.addAdjustmentListener(adjustmentListener);
         day.getContentPane().add(scrollBar, BorderLayout.LINE_END);
         
-        
+           
         day.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         day.pack();
         day.setLocationRelativeTo(null);
@@ -108,7 +118,7 @@ public class Day extends JPanel implements MouseListener{
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private void loadDay(JFrame day, JScrollBar b) {
+    private void loadDay(JFrame day, JScrollBar b,JViewport viewport,Point point) {
         
         int licznik=1;
         int monthIndex =2;
@@ -175,8 +185,11 @@ public class Day extends JPanel implements MouseListener{
         
         }
     }   
-
-        day.getContentPane().add(parentPanel);
+        
+        viewport.setSize(100, 100);
+        viewport.setView(parentPanel);
+        viewport.setViewPosition(point);
+        day.getContentPane().add(viewport);
     }
     
     

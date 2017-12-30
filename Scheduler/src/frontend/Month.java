@@ -93,8 +93,8 @@ public class Month extends JPanel {
                 JPanel empty=new JPanel();
                 if(licznik<number){
                     c.fill = GridBagConstraints.HORIZONTAL;
-                    c.ipady = 70;
-                    c.ipadx = 60;
+                    c.ipady = 20;
+                    c.ipadx = 20;
                     c.gridx = i;
                     c.gridy = j+1;
                     this.add(empty,c);  
@@ -104,8 +104,8 @@ public class Month extends JPanel {
                 Day guzik=new Day(Integer.toString(currentDay), background);
                 if(licznik<number){
                     c.fill = GridBagConstraints.HORIZONTAL;
-                    c.ipady = 70;
-                    c.ipadx = 60;
+                    c.ipady = 20;
+                    c.ipadx = 20;
                     c.gridx = i;
                     c.gridy = j+1;
                     this.add(guzik,c);  
