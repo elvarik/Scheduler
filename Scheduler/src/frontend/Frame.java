@@ -22,6 +22,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,10 +30,16 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
-
+import BackEnd.CustomTable;
+import BackEnd.CustomTableModel;
+import javax.swing.JComboBox;
+import javax.swing.JSplitPane;
+import javax.swing.ListSelectionModel;
 
 /**
  *
@@ -49,12 +56,14 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     private Month miesiąc;
     CalendarPlotter Cal=new CalendarPlotter();
     JPanel header=new JPanel();
+    JPanel left = new JPanel(new BorderLayout());
+    JPanel right = new JPanel();
     public Frame(){
         
         super("Scheduler");
         //father.setBackground(new Color(206, 224, 218));
         //header.setBackground(new Color(206, 224, 218));
-        setResizable(false);
+        //setResizable(false);
         addKeyListener(this);
 
         try {
@@ -69,17 +78,21 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
        year = Cal.getCurrentYear();
         //this.setPreferredSize(windowSize);
         headerLabel = new JLabel(Cal.Months[month - 1]+" "+year);
-        this.header.add(lewo);
         this.header.add(headerLabel);
+        this.header.add(lewo);
         this.header.add(prawo);
         father.add(header);
         lewo.setFocusPainted(false);
         prawo.setFocusPainted(false);
         lewo.addActionListener(this);
         prawo.addActionListener(this);
-        header.setBorder(new EmptyBorder(10,10,25,25));
-        miesiąc = new Month(father.getBackground(), month, year);
+        header.setBorder(new EmptyBorder(10,10,10,10));
+       
         //miesiąc.reAssing(month, year);
+        workers = new ArrayList<>();
+        workers.add(new Worker("Piotr Filipkowski"));
+        workers.add(new Worker("Marcin Gałecki"));
+        this.setPreferredSize(new Dimension(1000,700));
         setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
         this.setupMenuBar();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -89,9 +102,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         
         
         
-        workers = new ArrayList<>();
-        workers.add(new Worker("Piotr Filipkowski"));
-        workers.add(new Worker("Marcin Gałecki"));
+        
         
         
     }
@@ -159,74 +170,90 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     
     @Override
     public void actionPerformed(ActionEvent e) {
-		Object source = e.getSource();
-                if(source==lewo){
-                    if(month == 1)
-                    {
-                        month= 12;
-                        year--;
-                    }
-                    else
-                        month--;
-                    
-                    father.remove(1);
-                    headerLabel.setText(Cal.Months[month - 1]+" "+ year);
-                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                    setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
-                    this.pack();
-                    
-                }
-                else if(source==prawo){
-                    if(month==12)
-                    {
-                        month = 1;
-                        year++;
-                    }
-                    else
-                        month++;
-                    
-                    father.remove(1);
-                    headerLabel.setText(Cal.Months[month - 1]+" "+ year);
-                    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                    setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
-                    this.pack();
-                    
-                    
-                }
+        
     }
 
     private void setComponents(int h, int w) {
         
+        JComboBox workersSelectionBox = new JComboBox(workers.toArray());
+        workersSelectionBox.setSelectedIndex(0);
+        header.add(workersSelectionBox);
+        left.add(header,BorderLayout.PAGE_START);
+        Vector <String> columnNames = new Vector<String>();
+        Vector<Vector> rowData = new Vector <Vector>();
         
-        GridBagLayout masterGridBag;
-        header.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-        masterGridBag = new GridBagLayout();
-        GridBagConstraints constraints = new GridBagConstraints();        
-        masterGridBag.setConstraints(father, constraints);
-       
-        
-        
-        //miesiąc.setBackground(new Color(206, 224, 218));
-        
-        
-        father.setLayout(masterGridBag);
-        miesiąc.reAssing(month, year);
-        
-        
-        
+        columnNames.addElement("");
+        for(int i = 0; i < 7; i++)
+        {
+            columnNames.addElement(Cal.Days[i]);
+        }
+        int minute;
+        String minuteString;
+        for(int hour = 9; hour< 19; hour++)
+        {
+            
+            minute = 0;
+            for(int i = 0; i < 4; i++)
+            {
+                Vector<String> data = new Vector<String>();
+                if(minute == 0)
+                    minuteString = "00";
+                else
+                    minuteString = Integer.toString(minute);
+          
+                data.addElement(Integer.toString(hour) + ":" + minuteString);
+                for(int j = 0; j < 7; j++)
+                    data.addElement("");
+                minute+=15;
+                rowData.addElement(data);
+            } 
+        }
+        CustomTableModel cTable = new CustomTableModel(rowData, columnNames);
 
-        //constraints.fill = GridBagConstraints.PAGE_START;
-        constraints.anchor=GridBagConstraints.PAGE_START;
-        constraints.weighty=0;
-        constraints.ipadx = 0;
-        constraints.ipady = 0;
-        constraints.gridy = 1;
-        constraints.gridx = 0;
-        father.add(miesiąc,constraints);
+        CustomTable table = new CustomTable(cTable);
+        JScrollPane scrollPane = new JScrollPane(table);
+        table.setFillsViewportHeight(true);
+        table.setCellSelectionEnabled(true);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.setRowHeight(20);
+        left.add(scrollPane,BorderLayout.CENTER);
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+        splitPane.setOneTouchExpandable(true);
+        splitPane.setDividerLocation(600);
+        this.add(splitPane);
+//        GridBagLayout masterGridBag;
+//        header.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+//        masterGridBag = new GridBagLayout();
+//        GridBagConstraints constraints = new GridBagConstraints();        
+//        masterGridBag.setConstraints(father, constraints);
+//       
+//        
+//        
+//        //miesiąc.setBackground(new Color(206, 224, 218));
+//        
+//        
+//        father.setLayout(masterGridBag);
+//        miesiąc.reAssing(month, year);
+//        
+//        
+//        
+//
+//        //constraints.fill = GridBagConstraints.PAGE_START;
+//        constraints.anchor=GridBagConstraints.PAGE_START;
+//        constraints.weighty=0;
+//        constraints.ipadx = 0;
+//        constraints.ipady = 0;
+//        constraints.gridy = 1;
+//        constraints.gridx = 0;
+//        father.add(miesiąc,constraints);
         
        
         //this.add(father);
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        
     }
+
     
 }
