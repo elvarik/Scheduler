@@ -7,6 +7,8 @@ package BackEnd;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Map;
+import java.util.TreeMap;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -18,10 +20,14 @@ import javax.swing.table.DefaultTableCellRenderer;
 public class CellRenderer extends DefaultTableCellRenderer{
     private int targetRow;
     private Color color;
+    private Map<Integer, Color> rowMap;
+
+    public CellRenderer() {
+        this.rowMap = new TreeMap<>();
+    }
     public void setRowAndColor(int row, Color color)
     {
-        targetRow = row;
-        this.color = color;
+        rowMap.put(row, color);
     }
     @Override
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
@@ -32,8 +38,8 @@ public class CellRenderer extends DefaultTableCellRenderer{
     {
         l.setBackground(new Color(242, 242, 242));
     }
-    else if(row == targetRow)
-      l.setBackground(color);
+    else if(rowMap.get(row) != null)
+      l.setBackground(rowMap.get(row));
     else
        l.setBackground(Color.WHITE);
 

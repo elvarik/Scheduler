@@ -28,9 +28,18 @@ public class CustomTable extends JTable{
     }
     public void changeCellColor(int row, int col, Color color)
     {
-        CellRenderer cr = new CellRenderer();
+        CellRenderer cr = (CellRenderer) this.getColumnModel().getColumn(col).getCellRenderer();
         cr.setRowAndColor(row, color);
-        this.getColumnModel().getColumn(col).setCellRenderer(cr);
+    }
+    public void changeCellsColor(int startRow, int endRow, int col, Color color)
+    {
+        CellRenderer cr = (CellRenderer) this.getColumnModel().getColumn(col).getCellRenderer();
+        if(startRow > endRow)
+            return;
+        for(int i = startRow; i <= endRow; i++)
+        {
+            cr.setRowAndColor(i, color);
+        }
     }
     
 }

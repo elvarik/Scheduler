@@ -99,11 +99,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
-        
-        
-        
-        
-        
+
         
     }
     
@@ -217,6 +213,9 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
+        table.changeCellsColor(1, 4, 3, new Color(147, 197, 255));
+        //table.changeCellColor(1, 1, Color.yellow);
+        //table.changeCellColor(2, 1, Color.yellow);
         left.add(scrollPane,BorderLayout.CENTER);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
         splitPane.setOneTouchExpandable(true);
