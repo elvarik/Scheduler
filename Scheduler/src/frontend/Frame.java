@@ -182,7 +182,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         int dayNumber = 0;
         for(int i = 0; i < Cal.getAmountOfDays(); i++)
         {
-            columnNames.addElement( Integer.toString(i+1) + " " + Cal.Days[dayNumber %7]);
+            columnNames.addElement( Integer.toString(i+1) + " " + Cal.Days[i %7]);
             dayNumber++;
         }
         int minute;
