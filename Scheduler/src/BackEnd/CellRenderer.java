@@ -34,10 +34,10 @@ public class CellRenderer extends DefaultTableCellRenderer{
 
     JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
     
-    if(isSelected)
-    {
+    if(isSelected && col == 0)
+        return l;
+    else if(isSelected)
         l.setBackground(new Color(242, 242, 242));
-    }
     else if(rowMap.get(row) != null)
       l.setBackground(rowMap.get(row));
     else

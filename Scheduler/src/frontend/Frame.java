@@ -179,9 +179,11 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         Vector<Vector> rowData = new Vector <Vector>();
         
         columnNames.addElement("");
-        for(int i = 0; i < 7; i++)
+        int dayNumber = 0;
+        for(int i = 0; i < Cal.getAmountOfDays(); i++)
         {
-            columnNames.addElement(Cal.Days[i]);
+            columnNames.addElement( Integer.toString(i+1) + " " + Cal.Days[dayNumber %7]);
+            dayNumber++;
         }
         int minute;
         String minuteString;
@@ -198,7 +200,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
                     minuteString = Integer.toString(minute);
           
                 data.addElement(Integer.toString(hour) + ":" + minuteString);
-                for(int j = 0; j < 7; j++)
+                for(int j = 0; j < Cal.getAmountOfDays(); j++)
                     data.addElement("");
                 minute+=15;
                 rowData.addElement(data);
@@ -207,12 +209,13 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         CustomTableModel cTable = new CustomTableModel(rowData, columnNames);
 
         CustomTable table = new CustomTable(cTable);
-        JScrollPane scrollPane = new JScrollPane(table);
-        table.setFillsViewportHeight(true);
+        JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setCellSelectionEnabled(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
+        //Tutaj zmieniam kolor
         table.changeCellsColor(1, 4, 3, new Color(147, 197, 255));
         //table.changeCellColor(1, 1, Color.yellow);
         //table.changeCellColor(2, 1, Color.yellow);
