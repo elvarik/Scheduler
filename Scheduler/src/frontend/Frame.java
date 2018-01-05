@@ -179,11 +179,9 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         Vector<Vector> rowData = new Vector <Vector>();
         
         columnNames.addElement("");
-        int dayNumber = 0;
         for(int i = 0; i < Cal.getAmountOfDays(); i++)
         {
             columnNames.addElement( Integer.toString(i+1) + " " + Cal.Days[i %7]);
-            dayNumber++;
         }
         int minute;
         String minuteString;
