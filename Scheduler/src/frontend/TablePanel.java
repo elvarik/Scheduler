@@ -89,6 +89,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
        // header.remove(0);
         //header.add(dateLabel, 0);
         header.add(workersSelectionBox, BorderLayout.LINE_END);
+        header.setBorder(new EmptyBorder(7,7,7,7));
         this.add(header,BorderLayout.PAGE_START);
         
         Vector <String> columnNames = new Vector<String>();
