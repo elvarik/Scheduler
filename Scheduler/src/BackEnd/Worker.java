@@ -13,27 +13,58 @@ import java.util.TreeMap;
  */
 public class Worker {
     private String nameSurname;
-    private Map<Date, WorkDay> workDays;
+    private Map<Date, Work> works;
+    private String eMail;
+    private String phoneNumber;
     public Worker(String nameSurname)
     {
         this.nameSurname = nameSurname;
-        workDays = new TreeMap<>();
+        works = new TreeMap<>();
     }
     /** Puts Work Day on specified date on a Worker list. List is sorted by date automatically*/
-    public void putWorkDay(Date date, WorkDay workDay)
+    public void putWork(Date date, Work work)
     {
-        workDays.put(date, workDay);
+        works.put(date, work);
     }
-    /** Gets Work Day of specified date on a Worker list. List is sorted by date automatically*/
-    public WorkDay getWorkDay(Date date)
+    /** Gets Work of specified date on a Worker list. List is sorted by date automatically*/
+    public Work getWork(Date date)
     {
-        return workDays.get(date);
+        return works.get(date);
     }
     /** Gets array of all dates on a worker's list*/
-    public Date[] getWorkDates()
+    public Date[] getWorksDates()
     {
-        Set<Date> workDates = workDays.keySet();
+        Set<Date> workDates = works.keySet();
         return workDates.toArray(new Date[workDates.size()]);
+    }
+    public Map<Date,Work> getWorksInMonth(int month, int year)
+    {
+        Map<Date,Work> tmpWorks = new TreeMap<>();
+        Date [] dates = this.getWorksDates();
+        for(int i = 0; i < dates.length; i++)
+        {
+            if(dates[i].getMonth() == month && dates[i].getYear() == year)
+            {
+                tmpWorks.put(dates[i], works.get(dates[i]));
+            }
+        }
+        return tmpWorks;
+    }
+    public void setEmail(String eMail)
+    {
+        this.eMail = eMail;
+    }
+    public String getEmail()
+    {
+        return this.eMail;
+    }
+    public void setPhoneNumber(String phoneNumber)
+    {
+        this.phoneNumber = phoneNumber;
+    }
+    public String getPhoneNumber()
+    {
+        return this.phoneNumber;
     }
     @Override
     public String toString() {

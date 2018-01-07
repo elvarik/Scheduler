@@ -16,6 +16,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -33,7 +34,7 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author Hardkor
  */
-public class WorkersWindow extends JFrame implements ListSelectionListener,ActionListener, DocumentListener{
+public class WorkersWindow extends JDialog implements ListSelectionListener,ActionListener, DocumentListener{
     private List<Worker> workers;
     private JPanel main;
     private JButton addButton;
@@ -43,7 +44,7 @@ public class WorkersWindow extends JFrame implements ListSelectionListener,Actio
     private JTextField employeeName;
     public WorkersWindow(JFrame father,List<Worker> workers)
     {
-        super("Pracownicy");
+        super(father,"Pracownicy", true);
         this.workers = workers;
         main = new JPanel(new BorderLayout());
         

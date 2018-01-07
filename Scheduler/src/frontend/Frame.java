@@ -37,6 +37,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.EmptyBorder;
 import BackEnd.CustomTable;
 import BackEnd.CustomTableModel;
+import BackEnd.Date;
+import BackEnd.Time;
+import BackEnd.Work;
+import java.awt.Point;
+import java.util.Map;
 import javax.swing.JComboBox;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
@@ -47,23 +52,15 @@ import javax.swing.ListSelectionModel;
  */
 public class Frame extends JFrame implements KeyListener,ActionListener{
     protected WorkerLayout Asia=new WorkerLayout();
-    protected JButton lewo=new JButton(" < ");
-    protected JButton prawo=new JButton(" > ");
     protected JPanel father=(JPanel)this.getContentPane();
-    private JLabel headerLabel;
     private List<Worker> workers;
-    private int month, year;
     private Month miesiąc;
     CalendarPlotter Cal=new CalendarPlotter();
-    JPanel header=new JPanel();
-    JPanel left = new JPanel(new BorderLayout());
+    TablePanel leftPanel;
     JPanel right = new JPanel();
     public Frame(){
         
         super("Scheduler");
-        //father.setBackground(new Color(206, 224, 218));
-        //header.setBackground(new Color(206, 224, 218));
-        //setResizable(false);
         addKeyListener(this);
 
         try {
@@ -73,27 +70,26 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        //Dimension windowSize=new Dimension((int)((double)screenSize.width*0.50), (int)((double)screenSize.height*0.8));
-       month = Cal.getCurrentMonth();
-       year = Cal.getCurrentYear();
-        //this.setPreferredSize(windowSize);
-        headerLabel = new JLabel(Cal.Months[month - 1]+" "+year);
-        this.header.add(headerLabel);
-        this.header.add(lewo);
-        this.header.add(prawo);
-        father.add(header);
-        lewo.setFocusPainted(false);
-        prawo.setFocusPainted(false);
-        lewo.addActionListener(this);
-        prawo.addActionListener(this);
-        header.setBorder(new EmptyBorder(10,10,10,10));
-       
-        //miesiąc.reAssing(month, year);
         workers = new ArrayList<>();
+        
+        
+        List <Point> cells = new ArrayList<>();
+        List <Point> cells2 = new ArrayList<>();
+        
+        cells.add(new Point(1,1));
+        cells.add(new Point(2,1));
+        cells2.add(new Point(3,4));
+        cells2.add(new Point(4,4));
+        cells2.add(new Point(5,4));
+        Work praca = new Work(cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(103, 160, 252));
+        Work praca2 = new Work(cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(111, 224, 96));        
+                
         workers.add(new Worker("Piotr Filipkowski"));
+        workers.get(0).putWork(new Date(), praca);
         workers.add(new Worker("Marcin Gałecki"));
+        workers.get(1).putWork(new Date(4, 1, 2018), praca2);
         this.setPreferredSize(new Dimension(1000,700));
-        setComponents((int)((double)screenSize.height*0.6),(int)((double)screenSize.width*0.7));
+        setComponents();
         this.setupMenuBar();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
@@ -133,21 +129,12 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     
     
     public void okienko(){
-//        JFrame pracownicy=new JFrame();
-//        Toolkit kit = Toolkit.getDefaultToolkit();
-//        Dimension screenSize = kit.getScreenSize();
-//        Dimension windowSize=new Dimension((int)((double)screenSize.width*0.5), (int)((double)screenSize.height*0.5));
-//        JLabel emptyLabel = new JLabel("Pracownicy");
-//        pracownicy.setPreferredSize(windowSize);
-//        pracownicy.getContentPane().add(emptyLabel, BorderLayout.PAGE_START);
-//        pracownicy.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//        pracownicy.pack();
-//        pracownicy.setLocationRelativeTo(null);
-//        pracownicy.setVisible(true);
            List<Worker> tempWorkers = new ArrayList<>();
            tempWorkers.addAll(workers);
           WorkersWindow workersWindow = new WorkersWindow(this,tempWorkers);
           workers = tempWorkers;
+          leftPanel.setWorkers(workers);
+          
     }
     @Override
     public void keyTyped(KeyEvent ke) {
@@ -169,90 +156,14 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         
     }
 
-    private void setComponents(int h, int w) {
-        
-        JComboBox workersSelectionBox = new JComboBox(workers.toArray());
-        workersSelectionBox.setSelectedIndex(0);
-        header.add(workersSelectionBox);
-        left.add(header,BorderLayout.PAGE_START);
-        Vector <String> columnNames = new Vector<String>();
-        Vector<Vector> rowData = new Vector <Vector>();
-        
-        columnNames.addElement("");
-        for(int i = 0; i < Cal.getAmountOfDays(); i++)
-        {
-            columnNames.addElement( Integer.toString(i+1) + " " + Cal.Days[i %7]);
-        }
-        int minute;
-        String minuteString;
-        for(int hour = 9; hour< 19; hour++)
-        {
-            
-            minute = 0;
-            for(int i = 0; i < 4; i++)
-            {
-                Vector<String> data = new Vector<String>();
-                if(minute == 0)
-                    minuteString = "00";
-                else
-                    minuteString = Integer.toString(minute);
-          
-                data.addElement(Integer.toString(hour) + ":" + minuteString);
-                for(int j = 0; j < Cal.getAmountOfDays(); j++)
-                    data.addElement("");
-                minute+=15;
-                rowData.addElement(data);
-            } 
-        }
-        CustomTableModel cTable = new CustomTableModel(rowData, columnNames);
+    private void setComponents() {
 
-        CustomTable table = new CustomTable(cTable);
-        JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        table.setCellSelectionEnabled(true);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);
-        table.setRowHeight(20);
-        //Tutaj zmieniam kolor
-        table.changeCellsColor(1, 4, 3, new Color(147, 197, 255));
-        //table.changeCellColor(1, 1, Color.yellow);
-        //table.changeCellColor(2, 1, Color.yellow);
-        left.add(scrollPane,BorderLayout.CENTER);
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+        leftPanel = new TablePanel(workers, new Date());
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, right);
         splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(600);
         this.add(splitPane);
-//        GridBagLayout masterGridBag;
-//        header.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-//        masterGridBag = new GridBagLayout();
-//        GridBagConstraints constraints = new GridBagConstraints();        
-//        masterGridBag.setConstraints(father, constraints);
-//       
-//        
-//        
-//        //miesiąc.setBackground(new Color(206, 224, 218));
-//        
-//        
-//        father.setLayout(masterGridBag);
-//        miesiąc.reAssing(month, year);
-//        
-//        
-//        
-//
-//        //constraints.fill = GridBagConstraints.PAGE_START;
-//        constraints.anchor=GridBagConstraints.PAGE_START;
-//        constraints.weighty=0;
-//        constraints.ipadx = 0;
-//        constraints.ipady = 0;
-//        constraints.gridy = 1;
-//        constraints.gridx = 0;
-//        father.add(miesiąc,constraints);
-        
-       
-        //this.add(father);
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        
-        
+
     }
 
     

@@ -18,8 +18,6 @@ import javax.swing.table.DefaultTableCellRenderer;
  * @author Hardkor
  */
 public class CellRenderer extends DefaultTableCellRenderer{
-    private int targetRow;
-    private Color color;
     private Map<Integer, Color> rowMap;
 
     public CellRenderer() {

@@ -29,6 +29,12 @@ public class Date implements Comparator<Date>, Comparable<Date> {
         this.month = month;
         this.year = year;
     }
+    public Date(int month, int year)
+    {
+        this.day = 1;
+        this.month = month;
+        this.year = year;
+    }
 
     @Override
     public int hashCode() {
@@ -62,8 +68,22 @@ public class Date implements Comparator<Date>, Comparable<Date> {
         }
         return true;
     }
-
-    
+    public String monthYearString()
+    {
+        return months[month-1]+ " " + year;
+    }
+    public int getDay()
+    {
+        return this.day;
+    }
+    public int getMonth()
+    {
+        return this.month;
+    }
+    public int getYear()
+    {
+        return this.year;
+    }
 
     @Override
     public String toString() {

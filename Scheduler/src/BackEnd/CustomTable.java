@@ -6,6 +6,8 @@
 package BackEnd;
 
 import java.awt.Color;
+import java.awt.Point;
+import java.util.List;
 import java.util.Vector;
 import javax.swing.JTable;
 import javax.swing.table.TableModel;
@@ -31,7 +33,7 @@ public class CustomTable extends JTable{
         CellRenderer cr = (CellRenderer) this.getColumnModel().getColumn(col).getCellRenderer();
         cr.setRowAndColor(row, color);
     }
-    public void changeCellsColor(int startRow, int endRow, int col, Color color)
+    public void changeCellColor(int startRow, int endRow, int col, Color color)
     {
         CellRenderer cr = (CellRenderer) this.getColumnModel().getColumn(col).getCellRenderer();
         if(startRow > endRow)
@@ -39,6 +41,13 @@ public class CustomTable extends JTable{
         for(int i = startRow; i <= endRow; i++)
         {
             cr.setRowAndColor(i, color);
+        }
+    }
+    public void changeCellColor(List <Point> cells, Color color)
+    {
+        for(Point cell : cells)
+        {
+            this.changeCellColor(cell.x, cell.y, color);
         }
     }
     

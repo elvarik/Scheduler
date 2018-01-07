@@ -34,6 +34,12 @@ public final class CalendarPlotter {
         String dayName = new SimpleDateFormat("EEEE").format(date1);
         return dayName;
     }
+    public String getDayName(Date date)
+    {
+        java.util.Date date1 = (new GregorianCalendar(date.getYear(), date.getMonth()-1, date.getDay())).getTime();
+        String dayName = new SimpleDateFormat("EEEE").format(date1);
+        return dayName;
+    }
     /** Gets current month number*/
     public int getCurrentMonth()
     {
