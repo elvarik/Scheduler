@@ -57,7 +57,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     private Month miesiąc;
     CalendarPlotter Cal=new CalendarPlotter();
     TablePanel leftPanel;
-    JPanel right = new JPanel();
+    RightPanel right;
     public Frame(){
         
         super("Scheduler");
@@ -71,7 +71,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         workers = new ArrayList<>();
-        
+        right= new RightPanel();
         
         List <Point> cells = new ArrayList<>();
         List <Point> cells2 = new ArrayList<>();

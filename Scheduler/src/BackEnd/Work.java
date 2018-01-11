@@ -14,11 +14,13 @@ import java.util.List;
  * @author Hardkor
  */
 public class Work {
-    private String workDescription ;
+    private String workDescription;
     private Color color;
     private List<Point> cells;
     private Time startTime;
     private Time endTime;
+    //Tu ma być klient ze wszystkimi jego danymi
+    //private Date 
     
     public Work (List <Point> cells,Time startTime, Time endTime, String description, Color color)
     {

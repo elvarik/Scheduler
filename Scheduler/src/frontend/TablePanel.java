@@ -73,6 +73,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
         setTable(currentDate, workersList);
         
     }
+
     public void setTable(Date date, List <Worker> workersList)
     {
         currentDate = date;
