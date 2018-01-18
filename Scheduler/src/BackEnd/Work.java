@@ -19,7 +19,7 @@ public class Work {
     private List<Point> cells;
     private Time startTime;
     private Time endTime;
-    //Tu ma być klient ze wszystkimi jego danymi
+    private Customer customer;
     //private Date 
     
     public Work (List <Point> cells,Time startTime, Time endTime, String description, Color color)
@@ -29,6 +29,14 @@ public class Work {
         this.startTime = startTime;
         this.endTime = endTime;
         this.color = color;
+    }
+    public void setCustomer(Customer customer)
+    {
+        this.customer = customer;
+    }
+    public Customer getCustomer()
+    {
+        return this.customer;
     }
     public String getWorkDescription()
     {

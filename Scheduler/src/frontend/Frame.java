@@ -38,6 +38,7 @@ import javax.swing.border.EmptyBorder;
 import BackEnd.CustomTable;
 import BackEnd.CustomTableModel;
 import BackEnd.Date;
+import BackEnd.DateTime;
 import BackEnd.Time;
 import BackEnd.Work;
 import java.awt.Point;
@@ -50,7 +51,7 @@ import javax.swing.ListSelectionModel;
  *
  * @author ptfil_000
  */
-public class Frame extends JFrame implements KeyListener,ActionListener{
+public class Frame extends JFrame implements ActionListener{
     protected WorkerLayout Asia=new WorkerLayout();
     protected JPanel father=(JPanel)this.getContentPane();
     private List<Worker> workers;
@@ -61,7 +62,6 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
     public Frame(){
         
         super("Scheduler");
-        addKeyListener(this);
 
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -75,19 +75,24 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
         
         List <Point> cells = new ArrayList<>();
         List <Point> cells2 = new ArrayList<>();
+        List <Point> cells3 = new ArrayList<>();
         
         cells.add(new Point(1,1));
         cells.add(new Point(2,1));
         cells2.add(new Point(3,4));
         cells2.add(new Point(4,4));
         cells2.add(new Point(5,4));
+        cells3.add(new Point(3,1));
+        cells3.add(new Point(4,1));
+        cells3.add(new Point(5,1));
         Work praca = new Work(cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(103, 160, 252));
         Work praca2 = new Work(cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(111, 224, 96));        
-                
+        Work praca3 = new Work(cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(111, 224, 96));        
         workers.add(new Worker("Piotr Filipkowski"));
-        workers.get(0).putWork(new Date(), praca);
+        workers.get(0).putWork(new DateTime(new Date(), praca.getStartTime()), praca);
+        workers.get(0).putWork(new DateTime(new Date(), praca3.getStartTime()), praca3);
         workers.add(new Worker("Marcin Gałecki"));
-        workers.get(1).putWork(new Date(4, 1, 2018), praca2);
+        workers.get(1).putWork(new DateTime(new Date(4, 1, 2018), praca2.getStartTime()), praca2);
         this.setPreferredSize(new Dimension(1000,700));
         setComponents();
         this.setupMenuBar();
@@ -125,9 +130,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
 
         setJMenuBar(menubar);
     }
-    
-    
-    
+      
     public void okienko(){
            List<Worker> tempWorkers = new ArrayList<>();
            tempWorkers.addAll(workers);
@@ -136,21 +139,7 @@ public class Frame extends JFrame implements KeyListener,ActionListener{
           leftPanel.setWorkers(workers);
           
     }
-    @Override
-    public void keyTyped(KeyEvent ke) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void keyPressed(KeyEvent ke) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public void keyReleased(KeyEvent ke) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
+   
     @Override
     public void actionPerformed(ActionEvent e) {
         

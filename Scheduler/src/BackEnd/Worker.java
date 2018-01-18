@@ -13,7 +13,7 @@ import java.util.TreeMap;
  */
 public class Worker {
     private String nameSurname;
-    private Map<Date, Work> works;
+    private Map<DateTime, Work> works;
     private String eMail;
     private String phoneNumber;
     public Worker(String nameSurname)
@@ -22,9 +22,9 @@ public class Worker {
         works = new TreeMap<>();
     }
     /** Puts Work Day on specified date on a Worker list. List is sorted by date automatically*/
-    public void putWork(Date date, Work work)
+    public void putWork(DateTime dateTime, Work work)
     {
-        works.put(date, work);
+        works.put(dateTime, work);
     }
     /** Gets Work of specified date on a Worker list. List is sorted by date automatically*/
     public Work getWork(Date date)
@@ -32,15 +32,15 @@ public class Worker {
         return works.get(date);
     }
     /** Gets array of all dates on a worker's list*/
-    public Date[] getWorksDates()
+    public DateTime[] getWorksDates()
     {
-        Set<Date> workDates = works.keySet();
-        return workDates.toArray(new Date[workDates.size()]);
+        Set<DateTime> workDates = works.keySet();
+        return workDates.toArray(new DateTime[workDates.size()]);
     }
-    public Map<Date,Work> getWorksInMonth(int month, int year)
+    public Map<DateTime,Work> getWorksInMonth(int month, int year)
     {
-        Map<Date,Work> tmpWorks = new TreeMap<>();
-        Date [] dates = this.getWorksDates();
+        Map<DateTime,Work> tmpWorks = new TreeMap<>();
+        DateTime [] dates = this.getWorksDates();
         for(int i = 0; i < dates.length; i++)
         {
             if(dates[i].getMonth() == month && dates[i].getYear() == year)

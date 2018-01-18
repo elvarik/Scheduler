@@ -13,8 +13,8 @@ import java.util.Comparator;
  * @author Hardkor
  */
 public class Date implements Comparator<Date>, Comparable<Date> {
-    private int day, month, year;
-    private final String[] months={"styczeń","luty","marzec","kwiecień","maj",
+    protected int day, month, year;
+    protected static final String[] months={"styczeń","luty","marzec","kwiecień","maj",
         "czerwiec","lipiec","sierpień","wrzesień","październik",
         "listopad","grudzień"};
     public Date()
@@ -34,6 +34,12 @@ public class Date implements Comparator<Date>, Comparable<Date> {
         this.day = 1;
         this.month = month;
         this.year = year;
+    }
+    public Date(Date date)
+    {
+        this.day = date.day;
+        this.month = date.month;
+        this.year = date.year;
     }
 
     @Override

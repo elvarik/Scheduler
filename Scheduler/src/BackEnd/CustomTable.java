@@ -23,15 +23,15 @@ public class CustomTable extends JTable{
         super(tableModel);
         for(int i = 0; i< this.getColumnCount(); i++)
         {
-            CellRenderer cr = new CellRenderer();
-            cr.setRowAndColor(0, Color.WHITE);
+            CellRenderer cr = new CellRenderer(this.gridColor);
+            //cr.setRowAndColor(0, Color.WHITE);
             this.getColumnModel().getColumn(i).setCellRenderer(cr);
         }
     }
-    public void changeCellColor(int row, int col, Color color)
+    public void changeCellColor(int row, int col, Color color, Boolean first)
     {
         CellRenderer cr = (CellRenderer) this.getColumnModel().getColumn(col).getCellRenderer();
-        cr.setRowAndColor(row, color);
+        cr.setRowAndColor(row, color,first);
     }
     public void changeCellColor(int startRow, int endRow, int col, Color color)
     {
@@ -40,14 +40,16 @@ public class CustomTable extends JTable{
             return;
         for(int i = startRow; i <= endRow; i++)
         {
-            cr.setRowAndColor(i, color);
+            cr.setRowAndColor(i, color, Boolean.FALSE);
         }
     }
-    public void changeCellColor(List <Point> cells, Color color)
+    public void changeCellColor(List <Point> cells, Color color, Boolean first)
     {
+        Boolean firstTmp = first;
         for(Point cell : cells)
         {
-            this.changeCellColor(cell.x, cell.y, color);
+                this.changeCellColor(cell.x, cell.y, color,firstTmp);
+                firstTmp = Boolean.FALSE;
         }
     }
     

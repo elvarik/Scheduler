@@ -9,10 +9,12 @@ import BackEnd.CalendarPlotter;
 import BackEnd.CustomTable;
 import BackEnd.CustomTableModel;
 import BackEnd.Date;
+import BackEnd.DateTime;
 import BackEnd.Work;
 import BackEnd.Worker;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -123,7 +125,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
                 else
                     minuteString = Integer.toString(minute);
           
-                data.addElement(Integer.toString(hour) + ":" + minuteString);
+                data.addElement(" " + Integer.toString(hour) + ":" + minuteString);
                 for(int j = 0; j < cal.getAmountOfDays(currentDate.getMonth()); j++)
                     data.addElement("");
                 minute+=15;
@@ -139,6 +141,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0,0));
         this.setWorkCells();
         this.add(scrollPane, BorderLayout.CENTER);
     }
@@ -181,13 +185,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
             this.repaint();
         }
     }
-    public void changeCellColor(int startRow, int endRow, int col, Color color)
+    public void changeCellColor(int row, int col, Color color, Boolean first)
     {
-        table.changeCellColor(startRow, endRow, col, color);
-    }
-    public void changeCellColor(int row, int col, Color color)
-    {
-        table.changeCellColor(row, col, color);
+        table.changeCellColor(row, col, color,first);
     }
     public void setWorkers(List <Worker> workers)
     {
@@ -209,16 +209,56 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
     {
         selectedItemIndex = workersSelectionBox.getSelectedIndex();
         Worker tmp = workersList.get(selectedItemIndex);
-        Map <Date, Work> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
+        Map <DateTime, Work> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
         if(!works.isEmpty())
         {
-           for(Date key : works.keySet())
+           for(DateTime key : works.keySet())
            {
                Work tmpWork = works.get(key);
-               table.changeCellColor(tmpWork.getCells(), tmpWork.getColor());
+               Point tmpPoint = (Point)tmpWork.getCells().get(0);
+               table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
+               List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.x, tmpWork.getCells().size());
+               int row = tmpPoint.x;
+               for(String substring : tmpSubstrings)
+               {
+                   table.setValueAt(substring, row, tmpPoint.y);
+                   row++;
+               }
            }
         }
         
+    }
+    private List<String> substrings(String source, int column, int cellsAmount)
+    {
+        List<String> strings = new ArrayList<>();
+        int width = table.getColumnModel().getColumn(column).getWidth()/8;
+        if(width > source.length())
+        {
+            strings.add(source);
+            return strings;
+        }
+        String line = " ";
+        String [] words = source.split(" ");
+        
+        for(String word : words)
+        {
+            if(strings.size() < cellsAmount -1)
+            {
+                if(line.length() < width)
+                line+=word + " ";
+                else
+                {
+                    strings.add(line);
+                    line=" " +word + " ";
+                }
+            }
+            else
+            {
+                line+=word +" ";
+            }
+        }
+        strings.add(line);
+        return strings;
     }
 
     @Override
