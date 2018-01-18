@@ -43,6 +43,7 @@ import BackEnd.Time;
 import BackEnd.Work;
 import java.awt.Point;
 import java.util.Map;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
@@ -62,7 +63,8 @@ public class Frame extends JFrame implements ActionListener{
     public Frame(){
         
         super("Scheduler");
-
+        ImageIcon icon = new ImageIcon("dogeSmall.png");
+        this.setIconImage(icon.getImage());
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
