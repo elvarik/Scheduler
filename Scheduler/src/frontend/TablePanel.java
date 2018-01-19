@@ -32,12 +32,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.TableColumnModelEvent;
+import javax.swing.event.TableColumnModelListener;
 
 /**
  *
  * @author Hardkor
  */
-public class TablePanel extends JPanel implements ActionListener, ItemListener{
+public class TablePanel extends JPanel implements ActionListener, ItemListener, TableColumnModelListener{
     
     private List <Worker> workersList;
     private JButton today;
@@ -142,7 +146,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
         table.setShowGrid(false);
+        table.getColumnModel().addColumnModelListener(this);
         table.setIntercellSpacing(new Dimension(0,0));
+        
         this.setWorkCells();
         this.add(scrollPane, BorderLayout.CENTER);
     }
@@ -207,6 +213,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
     }
     private void setWorkCells()
     {
+        
         selectedItemIndex = workersSelectionBox.getSelectedIndex();
         Worker tmp = workersList.get(selectedItemIndex);
         Map <DateTime, Work> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
@@ -214,10 +221,16 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
         {
            for(DateTime key : works.keySet())
            {
+               
                Work tmpWork = works.get(key);
+               List <Point> workCells = tmpWork.getCells();
+               for(Point tmpCell : workCells)
+               {
+                   table.setValueAt("", tmpCell.x, tmpCell.y);
+               }
                Point tmpPoint = (Point)tmpWork.getCells().get(0);
                table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
-               List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.x, tmpWork.getCells().size());
+               List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.y, tmpWork.getCells().size());
                int row = tmpPoint.x;
                for(String substring : tmpSubstrings)
                {
@@ -234,7 +247,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
         int width = table.getColumnModel().getColumn(column).getWidth()/8;
         if(width > source.length())
         {
-            strings.add(source);
+            strings.add(" " + source);
             return strings;
         }
         String line = " ";
@@ -270,5 +283,30 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener{
         this.setWorkCells();
         this.revalidate();
         this.repaint();
+    }
+
+    @Override
+    public void columnAdded(TableColumnModelEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void columnRemoved(TableColumnModelEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void columnMoved(TableColumnModelEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void columnMarginChanged(ChangeEvent e) {
+        this.setWorkCells();
+    }
+
+    @Override
+    public void columnSelectionChanged(ListSelectionEvent e) {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
