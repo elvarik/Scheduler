@@ -20,6 +20,8 @@ public class Worker {
     {
         this.nameSurname = nameSurname;
         works = new TreeMap<>();
+        eMail = "Pusty";
+        phoneNumber = "Pusty";
     }
     /** Puts Work Day on specified date on a Worker list. List is sorted by date automatically*/
     public void putWork(DateTime dateTime, Work work)
@@ -49,6 +51,10 @@ public class Worker {
             }
         }
         return tmpWorks;
+    }
+    public void setNameSurname(String nameSurname)
+    {
+        this.nameSurname = nameSurname;
     }
     public void setEmail(String eMail)
     {

@@ -34,6 +34,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 
@@ -41,7 +42,7 @@ import javax.swing.event.TableColumnModelListener;
  *
  * @author Hardkor
  */
-public class TablePanel extends JPanel implements ActionListener, ItemListener, TableColumnModelListener{
+public class TablePanel extends JPanel implements ActionListener, ItemListener, TableColumnModelListener, ListSelectionListener{
     
     private List <Worker> workersList;
     private JButton today;
@@ -142,13 +143,15 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setCellSelectionEnabled(true);
+        table.getSelectionModel().addListSelectionListener(this);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
         table.setShowGrid(false);
         table.getColumnModel().addColumnModelListener(this);
         table.setIntercellSpacing(new Dimension(0,0));
-        
+        table.getTableHeader().setReorderingAllowed(false);
         this.setWorkCells();
         this.add(scrollPane, BorderLayout.CENTER);
     }
@@ -307,6 +310,37 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
 
     @Override
     public void columnSelectionChanged(ListSelectionEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.valueChanged(e);
+//throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent lse) {
+        
+        if(!lse.getValueIsAdjusting())
+        {
+        this.setWorkCells();
+        int row = table.getSelectedRow();
+        int col = table.getSelectedColumn();
+        selectedItemIndex = workersSelectionBox.getSelectedIndex();
+        Worker tmp = workersList.get(selectedItemIndex);
+        Map <DateTime, Work> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
+        if(!works.isEmpty())
+        {
+            for(DateTime key : works.keySet())
+            {
+                if(key.getDay() == col)
+                {
+                    Work tmpWork = works.get(key);
+                    List <Point> tmpPoints = tmpWork.getCells();
+                    if(tmpPoints.contains(new Point(row,col)))
+                    {
+                        table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
+                    }
+                }
+            }
+        }
+        }
+        
     }
 }

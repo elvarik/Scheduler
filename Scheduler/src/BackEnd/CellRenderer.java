@@ -34,7 +34,7 @@ public class CellRenderer extends DefaultTableCellRenderer{
     }
     @Override
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-
+      
     JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
     
     if(isSelected && col == 0)
@@ -42,10 +42,13 @@ public class CellRenderer extends DefaultTableCellRenderer{
     else if(isSelected)
     {
         if(rowMap.get(row) != null)
-            l.setBackground(rowMap.get(row).darker());
+        {
+            l.setBackground(rowMap.get(row));
+            l.setForeground(Color.black);
+        }
         else
         l.setBackground(new Color(242, 242, 242));
-        //setBorder(BorderFactory.createMatteBorder(0, 0, 1, 1, gridColor));
+        
     }
     else if(rowMap.get(row) != null)
     {

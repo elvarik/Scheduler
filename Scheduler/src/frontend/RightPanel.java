@@ -34,6 +34,7 @@ public class RightPanel extends JPanel {
     private final JLabel endTimeLabel = new JLabel("Zakończenie pracy");
     private GridBagConstraints c;
     RightPanel(){
+        
         GridBagLayout  g=new GridBagLayout();
         this.setLayout(g);
         c = new GridBagConstraints();
