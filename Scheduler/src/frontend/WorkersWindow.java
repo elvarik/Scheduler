@@ -10,11 +10,20 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
@@ -24,8 +33,10 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -41,14 +52,13 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author Hardkor
  */
-public class WorkersWindow extends JDialog implements ListSelectionListener,ActionListener, DocumentListener{
+public class WorkersWindow extends JDialog implements ListSelectionListener,ActionListener, DocumentListener, MouseListener{
     private List<Worker> workers;
     private JPanel main;
     private JButton addButton;
     private JButton deleteButton;
     private JList workersList;
     private DefaultListModel listModel;
-    private JTextField employeeName;
     private boolean onStartClear;
     private JPanel grid;
     private JPanel rightPanel;
@@ -58,10 +68,24 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     private JButton okButton;
     private JButton undoButton;
     private JPanel rightButtonPane;
+    private JPopupMenu popup;
+    private JMenuItem copyItem;
+    private JMenuItem pasteItem;
+    private boolean editMode;
+    private JTextField copyFrom;
+    private JTextField pasteTo;
     public WorkersWindow(JFrame father,List<Worker> workers)
     {
         super(father,"Pracownicy", true);
         this.workers = workers;
+        popup = new JPopupMenu();
+        copyItem = new JMenuItem("Kopiuj");
+        copyItem.addActionListener(this);
+        pasteItem = new JMenuItem("Wklej");
+        pasteItem.addActionListener(this);
+
+        
+        editMode = false;
         grid = new JPanel(new GridLayout(0,2,-40,10));
         rightPanel = new JPanel(new BorderLayout());
         rightButtonPane = new JPanel();
@@ -77,7 +101,6 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     }
     private void GenerateContent()
     {
-        
         listModel = new DefaultListModel();
         for(Worker worker : workers)
             listModel.addElement(worker.toString());
@@ -91,26 +114,15 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         JScrollPane listScrollPane = new JScrollPane(workersList);
         JPanel buttonPane = new JPanel();
-        addButton = new JButton(" + ");
+        addButton = new JButton("Dodaj pracownika");
         addButton.addActionListener(this);
-        addButton.setEnabled(false);
-        deleteButton = new JButton(" - ");
+        addButton.setEnabled(true);
+        deleteButton = new JButton("Usuń pracownika");
         deleteButton.setEnabled(false);
-        employeeName = new JTextField("Podaj imie i nazwisko pracownika",20);
         
-        employeeName.addMouseListener(new MouseAdapter(){
-            @Override
-            public void mouseClicked(MouseEvent e){
-                if(onStartClear)
-                {
-                    employeeName.setText("");
-                    onStartClear = false;
-                }
-            }
-        });
-        employeeName.getDocument().addDocumentListener(this);
+        
         deleteButton.addActionListener(this);
-        buttonPane.add(employeeName);
+        //buttonPane.add(employeeName);
         buttonPane.add(addButton);
         buttonPane.add(deleteButton);
         buttonPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -119,37 +131,30 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         main.setMinimumSize(new Dimension(300, 0));
         
         JLabel nameLabel = new JLabel("Imie i nazwisko:");
+        
         nameField = new JTextField(15);
         nameField.getDocument().addDocumentListener(this);
-        JPanel name = new JPanel(new FlowLayout());
-        name.add(nameLabel);
-        name.add(nameField);
-        
+        nameField.addMouseListener(this);
         grid.add(nameLabel);
         grid.add(nameField);
         
         JLabel phoneLabel = new JLabel("Numer telefonu:");
         phoneField = new JTextField(15);
-        JPanel phone = new JPanel(new FlowLayout());
-        phone.add(phoneLabel);
-        phone.add(phoneField);
-        
+        phoneField.addMouseListener(this);
         grid.add(phoneLabel);
         grid.add(phoneField);
         
         JLabel emailLabel = new JLabel("Adres e-mail:");
         emailField = new JTextField(15);
-        JPanel email = new JPanel(new FlowLayout());
-        email.add(emailLabel);
-        email.add(emailField);
+        emailField.addMouseListener(this);
         grid.add(emailLabel);
         grid.add(emailField);
         
-        okButton = new JButton("Zatwierdź zmiany");
+        okButton = new JButton("Edytuj");
         okButton.addActionListener(this);
         okButton.setEnabled(false);
         
-        undoButton = new JButton("Cofnij zmiany");
+        undoButton = new JButton("Cofnij");
         undoButton.addActionListener(this);
         undoButton.setEnabled(false);
         rightButtonPane.add(okButton);
@@ -158,15 +163,38 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         grid.setBorder(new EmptyBorder(20,0,0,0));
         JPanel gridWrapPanel = new JPanel();
         gridWrapPanel.add(grid);
+        undoButton.setVisible(false);
         rightPanel.add(gridWrapPanel,BorderLayout.CENTER);
         rightPanel.add(rightButtonPane, BorderLayout.PAGE_END);
-        rightPanel.setBorder(new TitledBorder("Edycja pracownika"));
-        
+        rightPanel.setBorder(new TitledBorder("Dane pracownika"));
+        nameField.setEnabled(false);
+        emailField.setEnabled(false);
+        phoneField.setEnabled(false);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,main,rightPanel);
         splitPane.setDividerLocation(300);
         this.add(splitPane);
     }
-
+    private void enterEditMode()
+    {
+        rightPanel.setBorder(new TitledBorder("Edycja pracownika"));
+        editMode = true;
+        okButton.setText("Zatwierdź zmiany");
+        undoButton.setVisible(true);
+        nameField.setEnabled(true);
+        emailField.setEnabled(true);
+        phoneField.setEnabled(true);
+        nameField.requestFocus();
+    }
+    private void exitEditMode()
+    {
+        editMode = false;
+        rightPanel.setBorder(new TitledBorder("Dane pracownika"));
+        okButton.setText("Edytuj");
+        undoButton.setVisible(false);
+        nameField.setEnabled(false);
+        emailField.setEnabled(false);
+        phoneField.setEnabled(false);
+    }
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         if(workersList.getSelectedIndices().length > 0)
@@ -188,10 +216,11 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         Object source = ae.getSource();
         if(source == addButton)
         {
-            workers.add(new Worker(employeeName.getText()));
+            workers.add(new Worker("Podaj imie i nazwisko"));
             listModel.addElement(workers.get(workers.size()-1).toString());
             workersList.ensureIndexIsVisible(workers.size()-1);
             workersList.setSelectedIndex(workers.size()-1);
+            this.enterEditMode();
         }
         else if(source == deleteButton)
         {
@@ -216,24 +245,58 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         }
         else if(source == okButton)
         {
-            int selected = workersList.getSelectedIndex();
-            workers.get(selected).setNameSurname(nameField.getText());
-            workers.get(selected).setEmail(emailField.getText());
-            workers.get(selected).setPhoneNumber(phoneField.getText());
-            listModel.set(selected, workers.get(selected).toString());
-            JOptionPane.showMessageDialog(this,"Zmiany zatwierdzono pomyślnie.", "", JOptionPane.INFORMATION_MESSAGE);
+            if(!editMode)
+            {
+                this.enterEditMode();
+            }
+            else
+            {
+                int selected = workersList.getSelectedIndex();
+                workers.get(selected).setNameSurname(nameField.getText());
+                workers.get(selected).setEmail(emailField.getText());
+                workers.get(selected).setPhoneNumber(phoneField.getText());
+                listModel.set(selected, workers.get(selected).toString());
+                JOptionPane.showMessageDialog(this,"Zmiany zatwierdzono pomyślnie.", "", JOptionPane.INFORMATION_MESSAGE);
+                this.exitEditMode();
+            }
+        }
+        else if(source == copyItem)
+        {
+            JTextField temp = copyFrom;
+            String copied = temp.getText();
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            Clipboard clipboard = toolkit.getSystemClipboard();
+            StringSelection strSel = new StringSelection(copied);
+            clipboard.setContents(strSel, null);
+            
+        }
+        else if(source == pasteItem)
+        {
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            Clipboard clipboard = toolkit.getSystemClipboard();
+            try {
+                String pasted = (String) clipboard.getData(DataFlavor.stringFlavor);
+                pasteTo.setText(pasted);
+                pasteTo.requestFocus();
+            } catch (UnsupportedFlavorException ex) {
+                Logger.getLogger(WorkersWindow.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(WorkersWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
         else if(source == undoButton)
         {
-            int selected = workersList.getSelectedIndex();
-            nameField.setText(workers.get(selected).toString());
-            emailField.setText(workers.get(selected).getEmail());
-            phoneField.setText(workers.get(selected).getPhoneNumber());
+            
+            this.exitEditMode();
+            nameField.setText(workers.get(workersList.getSelectedIndex()).toString());
+            emailField.setText(workers.get(workersList.getSelectedIndex()).getEmail());
+            phoneField.setText(workers.get(workersList.getSelectedIndex()).getPhoneNumber());
         }
         
         
     }
-
+    
     @Override
     public void insertUpdate(DocumentEvent de) {
         addButton.setEnabled(true);
@@ -243,8 +306,6 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
 
     @Override
     public void removeUpdate(DocumentEvent de) {
-        if(employeeName.getText().equals(""))
-            addButton.setEnabled(false);
         if(nameField.getText().equals(""))
             okButton.setEnabled(false);
     }
@@ -252,6 +313,52 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     @Override
     public void changedUpdate(DocumentEvent de) {
         
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent me) {
+        maybeShowPopup(me);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent me) {
+        maybeShowPopup(me);
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent me) {
+        maybeShowPopup(me);
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent me) {
+        
+    }
+
+    @Override
+    public void mouseExited(MouseEvent me) {
+        
+    }
+    private void maybeShowPopup(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            popup.removeAll();
+            copyFrom = (JTextField) e.getSource();
+            
+            if(!editMode)
+                popup.add(copyItem);
+            else
+            {
+                if(copyFrom.getSelectedText() != null)
+                {
+                    copyFrom = new JTextField(copyFrom.getSelectedText());
+                }
+                pasteTo = (JTextField) e.getSource();
+                popup.add(copyItem);
+                popup.add(pasteItem);
+            }
+            popup.show(e.getComponent(), e.getX(), e.getY());
+            
+        }
     }
     
     

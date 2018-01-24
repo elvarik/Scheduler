@@ -139,6 +139,7 @@ public class Frame extends JFrame implements ActionListener{
           WorkersWindow workersWindow = new WorkersWindow(this,tempWorkers);
           workers = tempWorkers;
           leftPanel.setWorkers(workers);
+          leftPanel.refreshTable();
           
     }
    

@@ -52,5 +52,15 @@ public class CustomTable extends JTable{
                 firstTmp = Boolean.FALSE;
         }
     }
+    public void clearCellsColor()
+    {
+        for(int i = 0; i< this.getColumnCount(); i++)
+        {
+            CellRenderer cr = new CellRenderer(this.gridColor);
+            //cr.setRowAndColor(0, Color.WHITE);
+            this.getColumnModel().getColumn(i).setCellRenderer(cr);
+        }
+        
+    }
     
 }

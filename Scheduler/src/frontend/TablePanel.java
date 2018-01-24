@@ -80,8 +80,15 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         setTable(currentDate, workersList);
         
     }
-
-    public void setTable(Date date, List <Worker> workersList)
+    public void refreshTable()
+    {
+        header.remove(header.getComponentCount() -1);
+        this.removeAll();
+        this.setTable(this.currentDate, workersList);
+        this.revalidate();
+        this.repaint();
+    }
+    private void setTable(Date date, List <Worker> workersList)
     {
         currentDate = date;
         this.workersList = workersList;
@@ -145,7 +152,6 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         table.setCellSelectionEnabled(true);
         table.getSelectionModel().addListSelectionListener(this);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
         table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
         table.setShowGrid(false);
@@ -214,7 +220,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         header.revalidate();
         header.repaint();
     }
-    private void setWorkCells()
+    public void setWorkCells()
     {
         
         selectedItemIndex = workersSelectionBox.getSelectedIndex();
