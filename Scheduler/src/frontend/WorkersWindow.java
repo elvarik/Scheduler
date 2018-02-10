@@ -84,6 +84,8 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         pasteItem = new JMenuItem("Wklej");
         pasteItem.addActionListener(this);
 
+        popup.add(copyItem);
+        popup.add(pasteItem);
         
         editMode = false;
         grid = new JPanel(new GridLayout(0,2,-40,10));
@@ -278,9 +280,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
                 String pasted = (String) clipboard.getData(DataFlavor.stringFlavor);
                 pasteTo.setText(pasted);
                 pasteTo.requestFocus();
-            } catch (UnsupportedFlavorException ex) {
-                Logger.getLogger(WorkersWindow.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
+            } catch (UnsupportedFlavorException | IOException ex) {
                 Logger.getLogger(WorkersWindow.class.getName()).log(Level.SEVERE, null, ex);
             }
             
@@ -341,11 +341,11 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     }
     private void maybeShowPopup(MouseEvent e) {
         if (e.isPopupTrigger()) {
-            popup.removeAll();
+            
             copyFrom = (JTextField) e.getSource();
             
             if(!editMode)
-                popup.add(copyItem);
+                pasteItem.setEnabled(false);
             else
             {
                 if(copyFrom.getSelectedText() != null)
@@ -353,8 +353,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
                     copyFrom = new JTextField(copyFrom.getSelectedText());
                 }
                 pasteTo = (JTextField) e.getSource();
-                popup.add(copyItem);
-                popup.add(pasteItem);
+                pasteItem.setEnabled(true);
             }
             popup.show(e.getComponent(), e.getX(), e.getY());
             

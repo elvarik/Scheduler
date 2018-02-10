@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package BackEnd;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -13,7 +15,7 @@ import java.util.TreeMap;
  */
 public class Worker {
     private String nameSurname;
-    private Map<DateTime, Work> works;
+    private Map<Date, List<Work>> works;
     private String eMail;
     private String phoneNumber;
     public Worker(String nameSurname)
@@ -23,26 +25,34 @@ public class Worker {
         eMail = "Pusty";
         phoneNumber = "Pusty";
     }
-    /** Puts Work Day on specified date on a Worker list. List is sorted by date automatically*/
-    public void putWork(DateTime dateTime, Work work)
+    /** Puts Work on specified date on a Worker list. List is sorted by date automatically*/
+    public void putWork(Date date, Work work)
     {
-        works.put(dateTime, work);
+        List <Work> tmpArray;
+        if(works.get(date)!= null)
+            tmpArray = works.get(date);
+        else
+            tmpArray = new ArrayList<>();
+        
+        tmpArray.add(work);
+        works.put(date, tmpArray);
+        
     }
-    /** Gets Work of specified date on a Worker list. List is sorted by date automatically*/
-    public Work getWork(Date date)
+    /** Gets Works of specified date on a Worker list. List is sorted by date automatically*/
+    public List<Work> getWorks(Date date)
     {
         return works.get(date);
     }
     /** Gets array of all dates on a worker's list*/
-    public DateTime[] getWorksDates()
+    public Date[] getWorksDates()
     {
-        Set<DateTime> workDates = works.keySet();
-        return workDates.toArray(new DateTime[workDates.size()]);
+        Set<Date> workDates = works.keySet();
+        return workDates.toArray(new Date[workDates.size()]);
     }
-    public Map<DateTime,Work> getWorksInMonth(int month, int year)
+    public Map<Date, List<Work>> getWorksInMonth(int month, int year)
     {
-        Map<DateTime,Work> tmpWorks = new TreeMap<>();
-        DateTime [] dates = this.getWorksDates();
+        Map<Date,List<Work>> tmpWorks = new TreeMap<>();
+        Date [] dates = this.getWorksDates();
         for(int i = 0; i < dates.length; i++)
         {
             if(dates[i].getMonth() == month && dates[i].getYear() == year)

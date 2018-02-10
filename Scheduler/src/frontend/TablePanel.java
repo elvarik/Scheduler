@@ -16,13 +16,16 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -54,6 +57,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private JLabel dateLabel;
     private Date currentDate;
     private CustomTable table;
+    private CustomTable timeTable;
     private JComboBox workersSelectionBox;
     private int selectedItemIndex = 0;
     public TablePanel(List <Worker> workersList, Date date)
@@ -109,8 +113,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         
         Vector <String> columnNames = new Vector<String>();
         Vector<Vector> rowData = new Vector <Vector>();
-        
-        columnNames.addElement("");
+        Vector<String> tColumnNames = new Vector<String>();
+        Vector<Vector> tRowData = new Vector<Vector>();
+        tColumnNames.addElement(" ");
         String firstDay = cal.getDayName(new Date(1, currentDate.getMonth(), currentDate.getYear()));
         int dayNumber = 0;
         for(int i = 0; i < cal.Days.length; i++)
@@ -132,33 +137,54 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             for(int i = 0; i < 4; i++)
             {
                 Vector<String> data = new Vector<String>();
+                Vector<String> tData = new Vector<String>();
                 if(minute == 0)
                     minuteString = "00";
                 else
                     minuteString = Integer.toString(minute);
           
-                data.addElement(" " + Integer.toString(hour) + ":" + minuteString);
+                tData.addElement(" " + Integer.toString(hour) + ":" + minuteString);
                 for(int j = 0; j < cal.getAmountOfDays(currentDate.getMonth()); j++)
                     data.addElement("");
                 minute+=15;
                 rowData.addElement(data);
+                tRowData.addElement(tData);
             } 
         }
+        Vector<String> tData = new Vector<String>();
+        tData.addElement(" ");
+        tRowData.addElement(tData);
         CustomTableModel cTable = new CustomTableModel(rowData, columnNames);
-
+        CustomTableModel cTimeTable = new CustomTableModel(tRowData, tColumnNames);
+        timeTable = new CustomTable(cTimeTable);
         table = new CustomTable(cTable);
+        JScrollPane timeScrollPane = new JScrollPane(timeTable,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        timeScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
+
+        timeScrollPane.setPreferredSize(new Dimension(50,300));
+        timeTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        timeTable.setCellSelectionEnabled(false);
+        timeTable.setShowGrid(false);
+        timeTable.setRowHeight(20);
+        timeTable.getColumnModel().getColumn(0).setPreferredWidth(50);
+        timeTable.getTableHeader().setResizingAllowed(false);
+        
         JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        timeScrollPane.getVerticalScrollBar().setModel(scrollPane.getVerticalScrollBar().getModel());
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setCellSelectionEnabled(true);
         table.getSelectionModel().addListSelectionListener(this);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        table.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        //table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        //table.setPreferredScrollableViewportSize(Toolkit.getDefaultToolkit().getScreenSize());
+        //table.getColumnModel().getColumn(0).setPreferredWidth(50);
         table.setRowHeight(20);
         table.setShowGrid(false);
         table.getColumnModel().addColumnModelListener(this);
         table.setIntercellSpacing(new Dimension(0,0));
         table.getTableHeader().setReorderingAllowed(false);
         this.setWorkCells();
+        this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
     }
     @Override
@@ -225,27 +251,32 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         
         selectedItemIndex = workersSelectionBox.getSelectedIndex();
         Worker tmp = workersList.get(selectedItemIndex);
-        Map <DateTime, Work> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
+        Map <Date, List<Work>> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
         if(!works.isEmpty())
         {
-           for(DateTime key : works.keySet())
+           for(Date key : works.keySet())
            {
-               
-               Work tmpWork = works.get(key);
-               List <Point> workCells = tmpWork.getCells();
-               for(Point tmpCell : workCells)
+               if(works.get(key) != null)
                {
-                   table.setValueAt("", tmpCell.x, tmpCell.y);
-               }
-               Point tmpPoint = (Point)tmpWork.getCells().get(0);
-               table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
-               List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.y, tmpWork.getCells().size());
-               int row = tmpPoint.x;
-               for(String substring : tmpSubstrings)
-               {
-                   table.setValueAt(substring, row, tmpPoint.y);
-                   row++;
-               }
+                   List <Work> worksOnDate = works.get(key);
+                   for(Work tmpWork : worksOnDate)
+                   {
+                       List <Point> workCells = tmpWork.getCells();
+                       for(Point tmpCell : workCells)
+                       {
+                           table.setValueAt("", tmpCell.x, tmpCell.y);
+                       }
+                       Point tmpPoint = (Point)tmpWork.getCells().get(0);
+                       table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
+                       List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.y, tmpWork.getCells().size());
+                       int row = tmpPoint.x;
+                       for(String substring : tmpSubstrings)
+                       {
+                           table.setValueAt(substring, row, tmpPoint.y);
+                           row++;
+                       }
+                    }
+                }
            }
         }
         
@@ -325,27 +356,48 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         
         if(!lse.getValueIsAdjusting())
         {
-        this.setWorkCells();
-        int row = table.getSelectedRow();
-        int col = table.getSelectedColumn();
-        selectedItemIndex = workersSelectionBox.getSelectedIndex();
-        Worker tmp = workersList.get(selectedItemIndex);
-        Map <DateTime, Work> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
-        if(!works.isEmpty())
-        {
-            for(DateTime key : works.keySet())
+            this.setWorkCells();
+            int[] rows = table.getSelectedRows();
+            int col = table.getSelectedColumn();
+            List<Point> selected = new ArrayList<>();
+            for(int tmpRow : rows)
             {
-                if(key.getDay() == col)
+                selected.add(new Point(tmpRow,col));
+            }
+            selectedItemIndex = workersSelectionBox.getSelectedIndex();
+            Worker tmpWorker = workersList.get(selectedItemIndex);
+            List<Work> works = tmpWorker.getWorks(new Date(col,currentDate.getMonth(), currentDate.getYear()));
+            if(works != null && !works.isEmpty())
+            {
+                for(Work tmpWork : works)
                 {
-                    Work tmpWork = works.get(key);
                     List <Point> tmpPoints = tmpWork.getCells();
-                    if(tmpPoints.contains(new Point(row,col)))
+                    if(selected.size() > 1)
+                    {
+                       
+                        Set<Point> selectedSet = new HashSet<>(selected);
+                        Set<Point> workCellsSet = new HashSet<>(tmpPoints);
+                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                        {
+                            table.clearSelection();
+                            return;
+                        }
+                    }
+                    else if(rows.length > 0 && tmpPoints.contains(new Point(rows[0],col)))
                     {
                         table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
+                        
                     }
+                    
                 }
             }
-        }
+            
+            
+            
+//            int x = table.getSelectedColumn();
+//            int[] y = table.getSelectedRows();
+//            System.out.println((String)timeTable.getValueAt(y[0], 0) + " -" + (String)timeTable.getValueAt(y[y.length-1]+1, 0));
+            
         }
         
     }

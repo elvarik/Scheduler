@@ -34,13 +34,12 @@ public class CellRenderer extends DefaultTableCellRenderer{
     }
     @Override
   public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-    if(col == 0)
-        isSelected = false;
+    
+//    if(rowMap.get(row) != null)
+//        hasFocus=false;
     JLabel l = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
     
-    if(isSelected && col == 0)
-        return l;
-    else if(isSelected)
+    if(isSelected)
     {
         if(rowMap.get(row) != null)
         {

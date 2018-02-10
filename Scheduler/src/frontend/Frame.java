@@ -91,10 +91,10 @@ public class Frame extends JFrame implements ActionListener{
         Work praca2 = new Work(cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(111, 224, 96));        
         Work praca3 = new Work(cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(111, 224, 96));        
         workers.add(new Worker("Piotr Filipkowski"));
-        workers.get(0).putWork(new DateTime(new Date(1,1,2018), praca.getStartTime()), praca);
-        workers.get(0).putWork(new DateTime(new Date(1,1,2018), praca3.getStartTime()), praca3);
+        workers.get(0).putWork(new Date(1,1,2018), praca);
+        workers.get(0).putWork(new Date(1,1,2018), praca3);
         workers.add(new Worker("Marcin Gałecki"));
-        workers.get(1).putWork(new DateTime(new Date(4, 1, 2018), praca2.getStartTime()), praca2);
+        workers.get(1).putWork(new Date(4, 1, 2018), praca2);
         this.setPreferredSize(new Dimension(1000,700));
         setComponents();
         this.setupMenuBar();
@@ -152,7 +152,7 @@ public class Frame extends JFrame implements ActionListener{
 
         leftPanel = new TablePanel(workers, new Date());
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, right);
-        splitPane.setOneTouchExpandable(true);
+        //splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(600);
         this.add(splitPane);
 
