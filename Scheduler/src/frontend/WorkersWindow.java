@@ -83,10 +83,9 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         copyItem.addActionListener(this);
         pasteItem = new JMenuItem("Wklej");
         pasteItem.addActionListener(this);
-
+        
         popup.add(copyItem);
         popup.add(pasteItem);
-        
         editMode = false;
         grid = new JPanel(new GridLayout(0,2,-40,10));
         rightPanel = new JPanel(new BorderLayout());

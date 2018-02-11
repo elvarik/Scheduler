@@ -87,9 +87,9 @@ public class Frame extends JFrame implements ActionListener{
         cells3.add(new Point(3,1));
         cells3.add(new Point(4,1));
         cells3.add(new Point(5,1));
-        Work praca = new Work(cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(103, 160, 252));
-        Work praca2 = new Work(cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(111, 224, 96));        
-        Work praca3 = new Work(cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(111, 224, 96));        
+        Work praca = new Work(cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(39, 60, 117).brighter());
+        Work praca2 = new Work(cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(17, 155, 26));        
+        Work praca3 = new Work(cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(17, 155, 26));        
         workers.add(new Worker("Piotr Filipkowski"));
         workers.get(0).putWork(new Date(1,1,2018), praca);
         workers.get(0).putWork(new Date(1,1,2018), praca3);

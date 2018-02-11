@@ -5,11 +5,13 @@
  */
 package frontend;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.InputStream;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -22,6 +24,7 @@ import javax.swing.border.EmptyBorder;
  * @author Pioty
  */
 public class RightPanel extends JPanel {
+  
     private JTextArea annotations=new JTextArea();
     private JLabel annotationsLabel=new JLabel("Uwagi:");
     private JTextField race= new JTextField();
@@ -32,34 +35,56 @@ public class RightPanel extends JPanel {
     private final JLabel startTimeLabel = new JLabel("Rozpoczęcie pracy");
     private JTextField endTime = new JTextField();
     private final JLabel endTimeLabel = new JLabel("Zakończenie pracy");
+    private JPanel centerPanel;
+    private JPanel header;
     private GridBagConstraints c;
     RightPanel(){
+        super(new BorderLayout());
         
-        GridBagLayout  g=new GridBagLayout();
-        this.setLayout(g);
+        centerPanel = new JPanel();
+        header = new JPanel(new BorderLayout());
+        JLabel headerLabel = new JLabel("Zarządzanie");
+        headerLabel.setForeground(Color.WHITE);
+        
+        InputStream is = RightPanel.class.getResourceAsStream("Nunito-Regular.ttf");
+        headerLabel.setFont(headerLabel.getFont().deriveFont(24.f));
+
+        
+        
+        headerLabel.setBorder(new EmptyBorder(10,20,10,10));
+        header.add(headerLabel,BorderLayout.LINE_START);
+        header.setPreferredSize(new Dimension(0,47));
+        header.setBackground(new Color(39, 60, 117).brighter());
+        this.setBackground(new Color(43, 50, 60));
+        centerPanel.setBackground(this.getBackground());
+        raceLabel.setForeground(Color.WHITE);
+        dogNameLabel.setForeground(Color.WHITE);
+        annotationsLabel.setForeground(Color.WHITE);
+        GridBagLayout g = new GridBagLayout();
+        centerPanel.setLayout(g);
         c = new GridBagConstraints();
-        g.setConstraints(this, c);
+        g.setConstraints(centerPanel, c);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx=1;
         c.gridx = 0;
         c.gridy = 0;
         c.insets = new Insets(5,0,5,0);  
-        this.add(raceLabel,c);
+        centerPanel.add(raceLabel,c);
         c.gridx = 1;
         c.gridy = 0;
-        this.add(race,c);
+        centerPanel.add(race,c);
 
         c.gridx = 0;
         c.gridy = 1;
-        this.add(dogNameLabel,c);
+        centerPanel.add(dogNameLabel,c);
 
         c.gridx = 1;
         c.gridy = 1;
-        this.add(dogName,c);
+        centerPanel.add(dogName,c);
 
         c.gridx = 0;
         c.gridy = 2;
-        this.add(annotationsLabel,c);
+        centerPanel.add(annotationsLabel,c);
 
         c.gridx = 1;
         c.gridy = 2;
@@ -70,8 +95,9 @@ public class RightPanel extends JPanel {
 
         c.gridheight= 2;
         c.ipady=100;
-        this.add(areaScrollPane,c);
-        
-        this.setBorder(new EmptyBorder(50,50,50,50));
+        centerPanel.add(areaScrollPane,c);
+        this.add(header, BorderLayout.PAGE_START);
+        this.add(centerPanel, BorderLayout.CENTER);
+        centerPanel.setBorder(new EmptyBorder(50,50,50,50));
     }
 }

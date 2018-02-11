@@ -43,15 +43,17 @@ public class CellRenderer extends DefaultTableCellRenderer{
     {
         if(rowMap.get(row) != null)
         {
+            //l.setForeground(Color.WHITE);
             l.setBackground(rowMap.get(row));
-            l.setForeground(Color.black);
+            //l.setForeground(Color.black);
         }
 //        else
-//        l.setBackground(new Color(242, 242, 242));
+//        l.setBackground(new Color(39, 60, 117).brighter());
         
     }
     else if(rowMap.get(row) != null)
     {
+      l.setForeground(Color.WHITE);
       l.setBackground(rowMap.get(row));
       if(firstMap.get(row) == Boolean.TRUE)
           setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, gridColor));

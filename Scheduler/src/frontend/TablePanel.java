@@ -70,18 +70,27 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         right.addActionListener(this);
         today.addActionListener(this);
         header = new JPanel(new BorderLayout());
+        
         headerCenter = new JPanel();
+        header.setBackground(new Color(39, 60, 117).brighter());
+        headerCenter.setBackground(header.getBackground());
+        left.setBackground(header.getBackground());
+        right.setBackground(header.getBackground());
+        today.setBackground(header.getBackground());
         cal = new CalendarPlotter();
         
         currentDate = date;
         this.workersList = workersList;
         dateLabel = new JLabel(date.monthYearString());
+        dateLabel.setForeground(Color.WHITE);
         header.add(today, BorderLayout.LINE_START);
         headerCenter.add(dateLabel);
         headerCenter.add(left);
         headerCenter.add(right);
         header.add(headerCenter, BorderLayout.CENTER);
         setTable(currentDate, workersList);
+        
+        
         
     }
     public void refreshTable()
@@ -186,6 +195,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.setWorkCells();
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
+        System.out.println(header.getSize().height + " " + header.getSize().width);
     }
     @Override
     public void actionPerformed(ActionEvent ae) {
