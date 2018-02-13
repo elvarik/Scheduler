@@ -60,6 +60,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private CustomTable timeTable;
     private JComboBox workersSelectionBox;
     private int selectedItemIndex = 0;
+    
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
@@ -113,6 +114,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             workersSelectionBox.setSelectedIndex(selectedItemIndex);
         }
         workersSelectionBox.addItemListener(this);
+        
         dateLabel.setText(currentDate.monthYearString());
        // header.remove(0);
         //header.add(dateLabel, 0);
@@ -161,7 +163,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             } 
         }
         Vector<String> tData = new Vector<String>();
-        tData.addElement(" ");
+        tData.addElement(" 19:00");
         tRowData.addElement(tData);
         CustomTableModel cTable = new CustomTableModel(rowData, columnNames);
         CustomTableModel cTimeTable = new CustomTableModel(tRowData, tColumnNames);
@@ -192,10 +194,10 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         table.getColumnModel().addColumnModelListener(this);
         table.setIntercellSpacing(new Dimension(0,0));
         table.getTableHeader().setReorderingAllowed(false);
+        
         this.setWorkCells();
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
-        System.out.println(header.getSize().height + " " + header.getSize().width);
     }
     @Override
     public void actionPerformed(ActionEvent ae) {

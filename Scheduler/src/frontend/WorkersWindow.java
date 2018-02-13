@@ -7,6 +7,7 @@ package frontend;
 
 import BackEnd.Worker;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -74,6 +75,8 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     private boolean editMode;
     private JTextField copyFrom;
     private JTextField pasteTo;
+    private JPanel rightPanelHeader;
+    private JLabel headerLabel;
     public WorkersWindow(JFrame father,List<Worker> workers)
     {
         super(father,"Pracownicy", true);
@@ -83,12 +86,20 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         copyItem.addActionListener(this);
         pasteItem = new JMenuItem("Wklej");
         pasteItem.addActionListener(this);
-        
+        headerLabel = new JLabel("Dane pracownika");
+        headerLabel.setBorder(new EmptyBorder(10,10,10,10));
+        headerLabel.setForeground(Color.WHITE);
+        headerLabel.setFont(headerLabel.getFont().deriveFont(16.f));
+        rightPanelHeader = new JPanel(new BorderLayout());
+        rightPanelHeader.setBackground(new Color(39, 60, 117).brighter());
+        rightPanelHeader.setPreferredSize(new Dimension(0,37));
+        rightPanelHeader.add(headerLabel, BorderLayout.LINE_START);
         popup.add(copyItem);
         popup.add(pasteItem);
         editMode = false;
         grid = new JPanel(new GridLayout(0,2,-40,10));
         rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBackground(new Color(43, 50, 60));
         rightButtonPane = new JPanel();
         //grid.setLayout(new BoxLayout(grid,BoxLayout.PAGE_AXIS));
         main = new JPanel(new BorderLayout());
@@ -113,6 +124,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         workersList.setFont(workersList.getFont().deriveFont(12.0f));
         DefaultListCellRenderer renderer = (DefaultListCellRenderer) workersList.getCellRenderer();
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
+        workersList.setSelectionBackground(new Color(39, 60, 117).brighter());
         JScrollPane listScrollPane = new JScrollPane(workersList);
         JPanel buttonPane = new JPanel();
         addButton = new JButton("Dodaj pracownika");
@@ -120,13 +132,14 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         addButton.setEnabled(true);
         deleteButton = new JButton("Usuń pracownika");
         deleteButton.setEnabled(false);
-        
-        
+        //addButton.setBackground(rightPanel.getBackground());
+        //deleteButton.setBackground(rightPanel.getBackground());
         deleteButton.addActionListener(this);
         //buttonPane.add(employeeName);
         buttonPane.add(addButton);
         buttonPane.add(deleteButton);
         buttonPane.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        //buttonPane.setBackground(rightPanel.getBackground());
         main.add(listScrollPane, BorderLayout.CENTER);
         main.add(buttonPane, BorderLayout.PAGE_END);
         main.setMinimumSize(new Dimension(300, 0));
@@ -136,38 +149,46 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         nameField = new JTextField(15);
         nameField.getDocument().addDocumentListener(this);
         nameField.addMouseListener(this);
+        nameLabel.setForeground(Color.WHITE);
         grid.add(nameLabel);
         grid.add(nameField);
         
         JLabel phoneLabel = new JLabel("Numer telefonu:");
         phoneField = new JTextField(15);
         phoneField.addMouseListener(this);
+        phoneLabel.setForeground(Color.WHITE);
         grid.add(phoneLabel);
         grid.add(phoneField);
         
         JLabel emailLabel = new JLabel("Adres e-mail:");
         emailField = new JTextField(15);
         emailField.addMouseListener(this);
+        emailLabel.setForeground(Color.WHITE);
         grid.add(emailLabel);
         grid.add(emailField);
         
         okButton = new JButton("Edytuj");
         okButton.addActionListener(this);
         okButton.setEnabled(false);
-        
+        okButton.setBackground(rightPanel.getBackground());
         undoButton = new JButton("Cofnij");
         undoButton.addActionListener(this);
         undoButton.setEnabled(false);
+        undoButton.setBackground(rightPanel.getBackground());
         rightButtonPane.add(okButton);
         rightButtonPane.add(undoButton);
-        
+        rightButtonPane.setBackground(rightPanel.getBackground());
+        rightButtonPane.setBorder(new EmptyBorder(5,5,5,5));
         grid.setBorder(new EmptyBorder(20,0,0,0));
+        grid.setBackground(rightPanel.getBackground());
         JPanel gridWrapPanel = new JPanel();
+        gridWrapPanel.setBackground(rightPanel.getBackground());
         gridWrapPanel.add(grid);
         undoButton.setVisible(false);
         rightPanel.add(gridWrapPanel,BorderLayout.CENTER);
         rightPanel.add(rightButtonPane, BorderLayout.PAGE_END);
-        rightPanel.setBorder(new TitledBorder("Dane pracownika"));
+        rightPanel.add(rightPanelHeader, BorderLayout.PAGE_START);
+        
         nameField.setEnabled(false);
         emailField.setEnabled(false);
         phoneField.setEnabled(false);
@@ -177,7 +198,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     }
     private void enterEditMode()
     {
-        rightPanel.setBorder(new TitledBorder("Edycja pracownika"));
+        headerLabel.setText("Edycja pracownika");
         editMode = true;
         okButton.setText("Zatwierdź zmiany");
         undoButton.setVisible(true);
@@ -189,7 +210,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     private void exitEditMode()
     {
         editMode = false;
-        rightPanel.setBorder(new TitledBorder("Dane pracownika"));
+        headerLabel.setText("Dane pracownika");
         okButton.setText("Edytuj");
         undoButton.setVisible(false);
         nameField.setEnabled(false);
@@ -226,7 +247,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         else if(source == deleteButton)
         {
             Object[] options = {"Tak", "Nie"};
-            int message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć?","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+            int message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
             int [] deleteIndex = workersList.getSelectedIndices();
             if(deleteIndex.length > 0 && message==JOptionPane.YES_OPTION)
             {
@@ -341,8 +362,10 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     private void maybeShowPopup(MouseEvent e) {
         if (e.isPopupTrigger()) {
             
-            copyFrom = (JTextField) e.getSource();
-            
+            JTextField source = (JTextField) e.getSource();
+            copyFrom = source;
+            source.requestFocus();
+            source.selectAll();
             if(!editMode)
                 pasteItem.setEnabled(false);
             else

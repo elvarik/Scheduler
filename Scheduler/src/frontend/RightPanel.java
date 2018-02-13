@@ -47,7 +47,7 @@ public class RightPanel extends JPanel {
         headerLabel.setForeground(Color.WHITE);
         
         InputStream is = RightPanel.class.getResourceAsStream("Nunito-Regular.ttf");
-        headerLabel.setFont(headerLabel.getFont().deriveFont(24.f));
+        headerLabel.setFont(headerLabel.getFont().deriveFont(22.f));
 
         
         
