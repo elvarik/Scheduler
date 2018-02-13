@@ -63,7 +63,7 @@ public class Frame extends JFrame implements ActionListener{
     public Frame(){
         
         super("Scheduler");
-        ImageIcon icon = new ImageIcon("dogeSmall.png");
+        ImageIcon icon = new ImageIcon("newIcon.png");
         this.setIconImage(icon.getImage());
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
