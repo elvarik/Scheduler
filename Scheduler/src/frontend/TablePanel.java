@@ -40,7 +40,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
-
+import javax.swing.table.TableColumn;
+import BackEnd.TableColumnAdjuster;
 /**
  *
  * @author Hardkor
@@ -87,6 +88,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.workersList = workersList;
         dateLabel = new JLabel(date.monthYearString());
         dateLabel.setForeground(Color.WHITE);
+        
         header.add(today, BorderLayout.LINE_START);
         headerCenter.add(dateLabel);
         headerCenter.add(left);
@@ -214,7 +216,6 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         timeTable.setRowHeight(20);
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         timeTable.getTableHeader().setResizingAllowed(false);
-
         JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         timeScrollPane.getVerticalScrollBar().setModel(scrollPane.getVerticalScrollBar().getModel());
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -227,7 +228,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         table.getColumnModel().addColumnModelListener(this);
         table.setIntercellSpacing(new Dimension(0,0));
         table.getTableHeader().setReorderingAllowed(false);
+        TableColumnAdjuster adjuster = new TableColumnAdjuster(table);
         
+        adjuster.adjustColumns();
         table.getTableHeader().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -246,11 +249,23 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         {
             selectedDay = new Date(col+1, currentDate.getMonth(), currentDate.getYear());
             header.remove(header.getComponentCount() -1);
+            headerCenter.remove(0);
+            header.remove(1);
+            JPanel centerLabelPanel = new JPanel();
+            centerLabelPanel.add(dateLabel);
+            centerLabelPanel.setBorder(new EmptyBorder(5,0,0,0));
+            centerLabelPanel.setBackground(header.getBackground());
+            header.add(centerLabelPanel, BorderLayout.CENTER);
+            header.add(headerCenter, BorderLayout.LINE_END);
         }
         else
         {
+            headerCenter.add(dateLabel, 0);
+            //header.remove(1);
+            header.remove(1);
+            header.add(headerCenter, BorderLayout.CENTER);
             selectedItemIndex = col;
-            selectedDay = currentDate;
+            currentDate = selectedDay;
         }
         dayMode = !dayMode;
 
@@ -277,6 +292,19 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 this.revalidate();
                 this.repaint();
             }
+            else
+            {
+                this.removeAll();
+                if(cal.getAmountOfDays(selectedDay.getMonth()) == selectedDay.getDay() && selectedDay.getMonth() == 12)
+                    selectedDay = new Date(1, 1, selectedDay.getYear()+1);
+                else if(cal.getAmountOfDays(selectedDay.getMonth()) == selectedDay.getDay())
+                    selectedDay = new Date(1, selectedDay.getMonth()+1, selectedDay.getYear());
+                else
+                    selectedDay.setDay(selectedDay.getDay()+1);
+                this.setTable(currentDate, workersList);
+                this.revalidate();
+                this.repaint();
+            }
         }
         else if(source == left)
         {
@@ -289,6 +317,19 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     this.setTable(new Date(12,currentDate.getYear()-1), workersList);
                 else
                     this.setTable(new Date(currentDate.getMonth()-1,currentDate.getYear()), workersList);
+                this.revalidate();
+                this.repaint();
+            }
+            else
+            {
+                this.removeAll();
+                if(selectedDay.getDay() == 1 && selectedDay.getMonth() == 1)
+                    selectedDay = new Date(cal.getAmountOfDays(1, selectedDay.getYear()-1), 1, selectedDay.getYear()-1);
+                else if(selectedDay.getDay() == 1)
+                    selectedDay = new Date(cal.getAmountOfDays(selectedDay.getMonth()-1, selectedDay.getYear()), selectedDay.getMonth()-1, selectedDay.getYear());
+                else
+                    selectedDay.setDay(selectedDay.getDay()-1);
+                this.setTable(currentDate, workersList);
                 this.revalidate();
                 this.repaint();
             }
@@ -463,7 +504,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
 
     @Override
     public void columnMarginChanged(ChangeEvent e) {
-        if(!dayMode)
+        //if(!dayMode)
             this.setWorkCells();
     }
 
