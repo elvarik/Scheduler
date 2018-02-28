@@ -9,18 +9,18 @@ import BackEnd.CalendarPlotter;
 import BackEnd.CustomTable;
 import BackEnd.CustomTableModel;
 import BackEnd.Date;
-import BackEnd.DateTime;
 import BackEnd.Work;
 import BackEnd.Worker;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,11 +60,14 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private CustomTable timeTable;
     private JComboBox workersSelectionBox;
     private int selectedItemIndex = 0;
+    private boolean dayMode = false;
+    private Date selectedDay = new Date();
     
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
         today = new JButton("Dzisiaj");
+        
         left = new JButton("<");
         right = new JButton(">");
         left.addActionListener(this);
@@ -90,9 +93,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         headerCenter.add(right);
         header.add(headerCenter, BorderLayout.CENTER);
         setTable(currentDate, workersList);
-        
-        
-        
+
     }
     public void refreshTable()
     {
@@ -106,61 +107,95 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     {
         currentDate = date;
         this.workersList = workersList;
-        if(workersList.size() == 0)
-            workersSelectionBox = new JComboBox();
-        else
-        {
-            workersSelectionBox = new JComboBox(workersList.toArray());
-            workersSelectionBox.setSelectedIndex(selectedItemIndex);
-        }
-        workersSelectionBox.addItemListener(this);
-        
-        dateLabel.setText(currentDate.monthYearString());
-       // header.remove(0);
-        //header.add(dateLabel, 0);
-        header.add(workersSelectionBox, BorderLayout.LINE_END);
-        header.setBorder(new EmptyBorder(7,7,7,7));
-        this.add(header,BorderLayout.PAGE_START);
-        
         Vector <String> columnNames = new Vector<String>();
         Vector<Vector> rowData = new Vector <Vector>();
         Vector<String> tColumnNames = new Vector<String>();
         Vector<Vector> tRowData = new Vector<Vector>();
         tColumnNames.addElement(" ");
-        String firstDay = cal.getDayName(new Date(1, currentDate.getMonth(), currentDate.getYear()));
-        int dayNumber = 0;
-        for(int i = 0; i < cal.Days.length; i++)
+        if(!dayMode)
         {
-            if(firstDay.equals(cal.Days[i]))
-                break;
-            dayNumber++;
-        }
-        for(int i = 0; i < cal.getAmountOfDays(date.getMonth()); i++)
-        {
-            columnNames.addElement( Integer.toString(i+1) + " " + cal.Days[dayNumber %7]);
-            dayNumber++;
-        }
-        int minute;
-        String minuteString;
-        for(int hour = 9; hour< 19; hour++)
-        {
-            minute = 0;
-            for(int i = 0; i < 4; i++)
+            if(workersList.isEmpty())
+                workersSelectionBox = new JComboBox();
+            else
             {
-                Vector<String> data = new Vector<String>();
-                Vector<String> tData = new Vector<String>();
-                if(minute == 0)
-                    minuteString = "00";
-                else
-                    minuteString = Integer.toString(minute);
-          
-                tData.addElement(" " + Integer.toString(hour) + ":" + minuteString);
-                for(int j = 0; j < cal.getAmountOfDays(currentDate.getMonth()); j++)
-                    data.addElement("");
-                minute+=15;
-                rowData.addElement(data);
-                tRowData.addElement(tData);
-            } 
+                workersSelectionBox = new JComboBox(workersList.toArray());
+                workersSelectionBox.setSelectedIndex(selectedItemIndex);
+            }
+            workersSelectionBox.addItemListener(this);
+
+            dateLabel.setText(currentDate.monthYearString());
+            header.add(workersSelectionBox, BorderLayout.LINE_END);
+            header.setBorder(new EmptyBorder(7,7,7,7));
+            this.add(header,BorderLayout.PAGE_START);
+            
+            String firstDay = cal.getDayName(new Date(1, currentDate.getMonth(), currentDate.getYear()));
+            int dayNumber = 0;
+            for (String Day : cal.Days) {
+                if (firstDay.equals(Day)) {
+                    break;
+                }
+                dayNumber++;
+            }
+            for(int i = 0; i < cal.getAmountOfDays(date.getMonth()); i++)
+            {
+                columnNames.addElement( Integer.toString(i+1) + " " + cal.Days[dayNumber %7]);
+                dayNumber++;
+            }
+            int minute;
+            String minuteString;
+            for(int hour = 9; hour< 19; hour++)
+            {
+                minute = 0;
+                for(int i = 0; i < 4; i++)
+                {
+                    Vector<String> data = new Vector<String>();
+                    Vector<String> tData = new Vector<String>();
+                    if(minute == 0)
+                        minuteString = "00";
+                    else
+                        minuteString = Integer.toString(minute);
+
+                    tData.addElement(" " + Integer.toString(hour) + ":" + minuteString);
+                    for(int j = 0; j < cal.getAmountOfDays(currentDate.getMonth()); j++)
+                        data.addElement("");
+                    minute+=15;
+                    rowData.addElement(data);
+                    tRowData.addElement(tData);
+                } 
+            }
+        }
+        else
+        {
+            dateLabel.setText(cal.getDayName(selectedDay)+ " " + this.selectedDay.toString());
+            header.setBorder(new EmptyBorder(7,7,7,7));
+            this.add(header,BorderLayout.PAGE_START);
+            
+            for(Worker worker : workersList)
+            {
+                columnNames.addElement(worker.toString());
+            }
+            int minute;
+            String minuteString;
+            for(int hour = 9; hour< 19; hour++)
+            {
+                minute = 0;
+                for(int i = 0; i < 4; i++)
+                {
+                    Vector<String> data = new Vector<String>();
+                    Vector<String> tData = new Vector<String>();
+                    if(minute == 0)
+                        minuteString = "00";
+                    else
+                        minuteString = Integer.toString(minute);
+
+                    tData.addElement(" " + Integer.toString(hour) + ":" + minuteString);
+                    for(int j = 0; j < workersList.size(); j++)
+                        data.addElement("");
+                    minute+=15;
+                    rowData.addElement(data);
+                    tRowData.addElement(tData);
+                } 
+            }  
         }
         Vector<String> tData = new Vector<String>();
         tData.addElement(" 19:00");
@@ -179,63 +214,104 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         timeTable.setRowHeight(20);
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         timeTable.getTableHeader().setResizingAllowed(false);
-        
+
         JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         timeScrollPane.getVerticalScrollBar().setModel(scrollPane.getVerticalScrollBar().getModel());
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setCellSelectionEnabled(true);
         table.getSelectionModel().addListSelectionListener(this);
         table.getColumnModel().getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        //table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        //table.setPreferredScrollableViewportSize(Toolkit.getDefaultToolkit().getScreenSize());
-        //table.getColumnModel().getColumn(0).setPreferredWidth(50);
+        
         table.setRowHeight(20);
         table.setShowGrid(false);
         table.getColumnModel().addColumnModelListener(this);
         table.setIntercellSpacing(new Dimension(0,0));
         table.getTableHeader().setReorderingAllowed(false);
         
-        this.setWorkCells();
+        table.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                switchModes(e);
+            }
+        });
+        
+        
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
+    }
+    private void switchModes(MouseEvent e)
+    {
+        int col = table.columnAtPoint(e.getPoint());
+        if(!dayMode)
+        {
+            selectedDay = new Date(col+1, currentDate.getMonth(), currentDate.getYear());
+            header.remove(header.getComponentCount() -1);
+        }
+        else
+        {
+            selectedItemIndex = col;
+            selectedDay = currentDate;
+        }
+        dayMode = !dayMode;
+
+        removeAll();
+        setTable(selectedDay, workersList);
+        this.setWorkCells();
+        revalidate();
+        repaint();
     }
     @Override
     public void actionPerformed(ActionEvent ae) {
         Object source = ae.getSource();
         if(source == right)
         {
-            
-            selectedItemIndex = workersSelectionBox.getSelectedIndex();
-            header.remove(header.getComponentCount() -1);
-            this.removeAll();
-            if(currentDate.getMonth() == 12)
-                this.setTable(new Date(1,currentDate.getYear()+1), workersList);
-            else
-                this.setTable(new Date(currentDate.getMonth()+1,currentDate.getYear()), workersList);
-            this.revalidate();
-            this.repaint();
+            if(!dayMode)
+            {
+                selectedItemIndex = workersSelectionBox.getSelectedIndex();
+                header.remove(header.getComponentCount() -1);
+                this.removeAll();
+                if(currentDate.getMonth() == 12)
+                    this.setTable(new Date(1,currentDate.getYear()+1), workersList);
+                else
+                    this.setTable(new Date(currentDate.getMonth()+1,currentDate.getYear()), workersList);
+                this.revalidate();
+                this.repaint();
+            }
         }
         else if(source == left)
         {
-            selectedItemIndex = workersSelectionBox.getSelectedIndex();
-            header.remove(header.getComponentCount() -1);
-            this.removeAll();
-            if(currentDate.getMonth() == 1)
-                this.setTable(new Date(12,currentDate.getYear()-1), workersList);
-            else
-                this.setTable(new Date(currentDate.getMonth()-1,currentDate.getYear()), workersList);
-            this.revalidate();
-            this.repaint();
+            if(!dayMode)
+            {
+                selectedItemIndex = workersSelectionBox.getSelectedIndex();
+                header.remove(header.getComponentCount() -1);
+                this.removeAll();
+                if(currentDate.getMonth() == 1)
+                    this.setTable(new Date(12,currentDate.getYear()-1), workersList);
+                else
+                    this.setTable(new Date(currentDate.getMonth()-1,currentDate.getYear()), workersList);
+                this.revalidate();
+                this.repaint();
+            }
         }
         else if(source == today)
         {
-            selectedItemIndex = workersSelectionBox.getSelectedIndex();
-            header.remove(header.getComponentCount() -1);
-            
-            this.removeAll();
-            this.setTable(new Date(), workersList);
-            this.revalidate();
-            this.repaint();
+            if(!dayMode)
+            {
+                selectedItemIndex = workersSelectionBox.getSelectedIndex();
+                header.remove(header.getComponentCount() -1);
+                this.removeAll();
+                this.setTable(new Date(), workersList);
+                this.revalidate();
+                this.repaint();
+            }
+            else
+            {
+                this.selectedDay = new Date();
+                this.removeAll();
+                this.setTable(new Date(), workersList);
+                this.revalidate();
+                this.repaint();
+            }
         }
     }
     public void changeCellColor(int row, int col, Color color, Boolean first)
@@ -260,39 +336,72 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     }
     public void setWorkCells()
     {
-        
-        selectedItemIndex = workersSelectionBox.getSelectedIndex();
-        Worker tmp = workersList.get(selectedItemIndex);
-        Map <Date, List<Work>> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
-        if(!works.isEmpty())
+        if(!dayMode)
         {
-           for(Date key : works.keySet())
-           {
-               if(works.get(key) != null)
+            selectedItemIndex = workersSelectionBox.getSelectedIndex();
+            Worker tmp = workersList.get(selectedItemIndex);
+            Map <Date, List<Work>> works = tmp.getWorksInMonth(currentDate.getMonth(), currentDate.getYear());
+            if(!works.isEmpty())
+            {
+               for(Date key : works.keySet())
                {
-                   List <Work> worksOnDate = works.get(key);
-                   for(Work tmpWork : worksOnDate)
+                   if(works.get(key) != null)
                    {
-                       List <Point> workCells = tmpWork.getCells();
-                       for(Point tmpCell : workCells)
+                       List <Work> worksOnDate = works.get(key);
+                       for(Work tmpWork : worksOnDate)
                        {
-                           table.setValueAt("", tmpCell.x, tmpCell.y);
-                       }
-                       Point tmpPoint = (Point)tmpWork.getCells().get(0);
-                       table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
-                       List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.y, tmpWork.getCells().size());
-                       int row = tmpPoint.x;
-                       for(String substring : tmpSubstrings)
-                       {
-                           table.setValueAt(substring, row, tmpPoint.y);
+                           List <Point> workCells = tmpWork.getCells();
+                           for(Point tmpCell : workCells)
+                           {
+                               table.setValueAt("", tmpCell.x, tmpCell.y);
+                           }
+                           Point tmpPoint = (Point)tmpWork.getCells().get(0);
+                           table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
+                           List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.y, tmpWork.getCells().size());
+                           int row = tmpPoint.x;
+                           for(String substring : tmpSubstrings)
+                           {
+                               table.setValueAt(substring, row, tmpPoint.y);
+                               row++;
+                           }
+                        }
+                    }
+               }
+            }
+        }
+        else
+        {
+            int col = 0;
+            for(Worker worker : workersList)
+            {
+                List<Work> worksOnDay = worker.getWorks(this.selectedDay);
+                if(worksOnDay != null && !worksOnDay.isEmpty())
+                {
+                    for(Work work : worksOnDay)
+                    {
+                        List <Point> workCells = work.getCells();
+                        List <Point> tmpWorkCells = new ArrayList<>();
+                        for(Point cell : workCells)
+                        {
+                            tmpWorkCells.add(new Point(cell.x, col));
+                        }
+                        table.changeCellColor(tmpWorkCells, work.getColor(), Boolean.TRUE);
+                        Point tmpPoint = (Point)work.getCells().get(0);
+                        List<String> tmpSubstrings = substrings(work.getWorkDescription(), col, work.getCells().size());
+                        int row = tmpPoint.x;
+                        for(String substring : tmpSubstrings)
+                        {
+                           table.setValueAt(substring, row, col);
                            row++;
-                       }
+                        }
                     }
                 }
-           }
+                col++;
+            }
         }
         
     }
+    
     private List<String> substrings(String source, int column, int cellsAmount)
     {
         List<String> strings = new ArrayList<>();
@@ -354,7 +463,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
 
     @Override
     public void columnMarginChanged(ChangeEvent e) {
-        this.setWorkCells();
+        if(!dayMode)
+            this.setWorkCells();
     }
 
     @Override
@@ -376,40 +486,68 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 selected.add(new Point(tmpRow,col));
             }
-            selectedItemIndex = workersSelectionBox.getSelectedIndex();
-            Worker tmpWorker = workersList.get(selectedItemIndex);
-            List<Work> works = tmpWorker.getWorks(new Date(col,currentDate.getMonth(), currentDate.getYear()));
-            if(works != null && !works.isEmpty())
+            if(!dayMode)
             {
-                for(Work tmpWork : works)
+                selectedItemIndex = workersSelectionBox.getSelectedIndex();
+                Worker tmpWorker = workersList.get(selectedItemIndex);
+                List<Work> works = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));
+                if(works != null && !works.isEmpty())
                 {
-                    List <Point> tmpPoints = tmpWork.getCells();
-                    if(selected.size() > 1)
+                    for(Work tmpWork : works)
                     {
-                       
-                        Set<Point> selectedSet = new HashSet<>(selected);
-                        Set<Point> workCellsSet = new HashSet<>(tmpPoints);
-                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                        List <Point> tmpPoints = tmpWork.getCells();
+                        
+                        if(selected.size() > 1)
                         {
-                            table.clearSelection();
-                            return;
+
+                            Set<Point> selectedSet = new HashSet<>(selected);
+                            Set<Point> workCellsSet = new HashSet<>(tmpPoints);
+                            if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                            {
+                                table.clearSelection();
+                                return;
+                            }
+                        }
+                        else if(rows.length > 0 && tmpPoints.contains(new Point(rows[0],col)))
+                        {
+                            table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
+
                         }
                     }
-                    else if(rows.length > 0 && tmpPoints.contains(new Point(rows[0],col)))
-                    {
-                        table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
-                        
-                    }
-                    
                 }
             }
-            
-            
-            
-//            int x = table.getSelectedColumn();
-//            int[] y = table.getSelectedRows();
-//            System.out.println((String)timeTable.getValueAt(y[0], 0) + " -" + (String)timeTable.getValueAt(y[y.length-1]+1, 0));
-            
+            else if(col >= 0)
+            {
+                Worker selectedWorker = workersList.get(col);
+                List<Work> works = selectedWorker.getWorks(selectedDay);
+                if(works != null && !works.isEmpty())
+                {
+                    for(Work tmpWork : works)
+                    {
+                        List <Point> tmpPoints = tmpWork.getCells();
+                        List <Point> tmpWorkCells = new ArrayList<>();
+                        for(Point cell : tmpPoints)
+                        {
+                            tmpWorkCells.add(new Point(cell.x, col));
+                        }
+                        if(selected.size() > 1)
+                        {
+                            Set<Point> selectedSet = new HashSet<>(selected);
+                            Set<Point> workCellsSet = new HashSet<>(tmpWorkCells);
+                            if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                            {
+                                table.clearSelection();
+                                return;
+                            }
+                        }
+                        else if(rows.length > 0 && tmpWorkCells.contains(new Point(rows[0],col)))
+                        {
+                            table.changeCellColor(tmpWorkCells, tmpWork.getColor().brighter(), Boolean.TRUE);
+
+                        }
+                    }
+                }
+            }
         }
         
     }

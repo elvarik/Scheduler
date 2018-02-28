@@ -22,10 +22,13 @@ public class CellRenderer extends DefaultTableCellRenderer{
     private Map<Integer, Color> rowMap;
     private Map<Integer, Boolean> firstMap;
     private Color gridColor;
-    public CellRenderer(Color gridColor) {
+    private int coulumnCount, rowCount;
+    public CellRenderer(Color gridColor, int columnCount, int rowCount) {
         this.rowMap = new TreeMap<>();
         this.gridColor = gridColor;
         this.firstMap = new TreeMap<>();
+        this.coulumnCount = columnCount;
+        this.rowCount = rowCount;
     }
     public void setRowAndColor(int row, Color color, Boolean first)
     {
@@ -63,7 +66,15 @@ public class CellRenderer extends DefaultTableCellRenderer{
     else
     {  
         l.setBackground(Color.WHITE);
-        setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, gridColor));
+        if(col == this.coulumnCount -1 && row == this.rowCount-1)
+            setBorder(BorderFactory.createMatteBorder(1, 1, 1, 1, gridColor));
+        else if(col == this.coulumnCount-1)
+            setBorder(BorderFactory.createMatteBorder(1, 1, 0, 1, gridColor));
+        else if(row == this.rowCount -1)
+            setBorder(BorderFactory.createMatteBorder(1, 1, 1, 0, gridColor));
+        else
+            setBorder(BorderFactory.createMatteBorder(1, 1, 0, 0, gridColor));
+            
     }
 
   //Return the JLabel which renders the cell.

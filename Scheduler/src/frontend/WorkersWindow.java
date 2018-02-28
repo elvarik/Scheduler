@@ -107,6 +107,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         GenerateContent();
         this.setLocationRelativeTo(father);
+        this.setPreferredSize(new Dimension(600, 350));
         this.pack();
         setSize(600, 350);
         this.setVisible(true);

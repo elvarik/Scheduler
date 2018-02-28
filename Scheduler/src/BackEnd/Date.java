@@ -50,7 +50,6 @@ public class Date implements Comparator<Date>, Comparable<Date> {
         hash = 53 * hash + this.year;
         return hash;
     }
-
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

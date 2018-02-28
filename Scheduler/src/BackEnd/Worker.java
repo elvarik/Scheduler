@@ -5,10 +5,10 @@
  */
 package BackEnd;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 /**
  *
  * @author Hardkor
@@ -21,7 +21,7 @@ public class Worker {
     public Worker(String nameSurname)
     {
         this.nameSurname = nameSurname;
-        works = new TreeMap<>();
+        works = new HashMap<>();
         eMail = "Pusty";
         phoneNumber = "Pusty";
     }
@@ -51,7 +51,7 @@ public class Worker {
     }
     public Map<Date, List<Work>> getWorksInMonth(int month, int year)
     {
-        Map<Date,List<Work>> tmpWorks = new TreeMap<>();
+        Map<Date,List<Work>> tmpWorks = new HashMap<>();
         Date [] dates = this.getWorksDates();
         for(int i = 0; i < dates.length; i++)
         {

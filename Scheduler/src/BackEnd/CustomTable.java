@@ -23,7 +23,7 @@ public class CustomTable extends JTable{
         super(tableModel);
         for(int i = 0; i< this.getColumnCount(); i++)
         {
-            CellRenderer cr = new CellRenderer(this.gridColor);
+            CellRenderer cr = new CellRenderer(this.gridColor, this.getColumnCount(), this.getRowCount());
             //cr.setRowAndColor(0, Color.WHITE);
             this.getColumnModel().getColumn(i).setCellRenderer(cr);
         }
@@ -56,7 +56,7 @@ public class CustomTable extends JTable{
     {
         for(int i = 0; i< this.getColumnCount(); i++)
         {
-            CellRenderer cr = new CellRenderer(this.gridColor);
+            CellRenderer cr = new CellRenderer(this.gridColor, this.getColumnCount(), this.getRowCount());
             //cr.setRowAndColor(0, Color.WHITE);
             this.getColumnModel().getColumn(i).setCellRenderer(cr);
         }
