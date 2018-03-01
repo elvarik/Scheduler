@@ -42,6 +42,13 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import BackEnd.TableColumnAdjuster;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 /**
  *
  * @author Hardkor
@@ -63,12 +70,40 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private int selectedItemIndex = 0;
     private boolean dayMode = false;
     private Date selectedDay = new Date();
-    
+    private JPopupMenu popupMenu;
+    private JMenuItem deleteMenuButton;
+    private JMenuItem colorBlue,colorGreen, colorViolet;
+    private JMenu colorsMenu;
+    private int rowAtPoint,colAtPoint;
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
-        today = new JButton("Dzisiaj");
+        popupMenu = new JPopupMenu();
+        popupMenu.setPreferredSize(new Dimension(100,50));
+        colorsMenu = new JMenu("Kolor");
+        colorBlue = new JMenuItem("");
+        colorBlue.setOpaque(true);
+        colorBlue.setBackground(new Color(39, 60, 117).brighter());
+        colorGreen = new JMenuItem("");
+        colorGreen.setOpaque(true);
+        colorGreen.setBackground(new Color(17, 155, 26));
         
+        colorViolet = new JMenuItem("");
+        colorViolet.setOpaque(true);
+        colorViolet.setBackground(new Color(138, 3, 150));
+        
+        colorBlue.addActionListener(this);
+        colorGreen.addActionListener(this);
+        colorViolet.addActionListener(this);
+        colorsMenu.add(colorBlue);
+        colorsMenu.add(colorGreen);
+        colorsMenu.add(colorViolet);
+        
+        deleteMenuButton = new JMenuItem("Usuń");
+        deleteMenuButton.addActionListener(this);
+        popupMenu.add(colorsMenu);
+        popupMenu.add(deleteMenuButton);
+        today = new JButton("Dzisiaj");
         left = new JButton("<");
         right = new JButton(">");
         left.addActionListener(this);
@@ -94,12 +129,14 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         headerCenter.add(left);
         headerCenter.add(right);
         header.add(headerCenter, BorderLayout.CENTER);
+        
         setTable(currentDate, workersList);
 
     }
     public void refreshTable()
     {
-        header.remove(header.getComponentCount() -1);
+        if(!dayMode)
+            header.remove(header.getComponentCount() -1);
         this.removeAll();
         this.setTable(this.currentDate, workersList);
         this.revalidate();
@@ -229,7 +266,35 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         table.setIntercellSpacing(new Dimension(0,0));
         table.getTableHeader().setReorderingAllowed(false);
         TableColumnAdjuster adjuster = new TableColumnAdjuster(table);
-        
+        table.setComponentPopupMenu(popupMenu);
+        popupMenu.addPopupMenuListener(new PopupMenuListener() {
+            @Override
+            public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        rowAtPoint = table.rowAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), table));
+                        colAtPoint = table.columnAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), table));
+                        if (rowAtPoint > -1) {
+                            table.setColumnSelectionInterval(colAtPoint, colAtPoint);
+                            table.setRowSelectionInterval(rowAtPoint, rowAtPoint);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+
+            @Override
+            public void popupMenuCanceled(PopupMenuEvent e) {
+                // TODO Auto-generated method stub
+
+            }
+        });
         adjuster.adjustColumns();
         table.getTableHeader().addMouseListener(new MouseAdapter() {
             @Override
@@ -354,6 +419,108 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 this.repaint();
             }
         }
+        else if(source == deleteMenuButton)
+        {
+            int col = table.getSelectedColumn();
+            Worker tmpWorker;
+            List<Work> worksOnDay;
+            if(!dayMode)
+            {
+                tmpWorker = workersList.get(selectedItemIndex);
+                worksOnDay = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));;
+            }
+            else
+            {
+                tmpWorker = workersList.get(col);
+                worksOnDay = tmpWorker.getWorks(selectedDay);
+            }
+            Work toDelete = null;
+            int message = JOptionPane.NO_OPTION;
+            if(worksOnDay != null && !worksOnDay.isEmpty())
+            {
+                for(Work work: worksOnDay)
+                {
+                    
+                    List<Point> workCells = work.getCells();
+                    List<Point> tmpWorkCells = null;
+                    if(!dayMode)
+                    {
+                        if (rowAtPoint > -1 && workCells.contains(new Point(rowAtPoint,colAtPoint))) 
+                        {
+                            Object[] options = {"Tak", "Nie"};
+                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                            if(message == JOptionPane.YES_OPTION)
+                                toDelete = work;
+                        }
+                    }
+                    else
+                    {
+                        tmpWorkCells = new ArrayList<>();
+                        for(Point cell : workCells)
+                        {
+                            tmpWorkCells.add(new Point(cell.x, col));
+                        }
+                        if (rowAtPoint > -1 && tmpWorkCells.contains(new Point(rowAtPoint,colAtPoint))) 
+                        {
+                            Object[] options = {"Tak", "Nie"};
+                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                            if(message == JOptionPane.YES_OPTION)
+                                toDelete = work;
+                        }
+                    }
+                }
+                
+                worksOnDay.remove(toDelete);
+                if(message == JOptionPane.YES_OPTION)
+                    this.refreshTable();   
+            } 
+        }
+        else if(source == colorBlue || source == colorGreen || source == colorViolet)
+        {
+            int col = table.getSelectedColumn();
+            Worker tmpWorker;
+            List<Work> worksOnDay;
+            if(!dayMode)
+            {
+                tmpWorker = workersList.get(selectedItemIndex);
+                worksOnDay = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));;
+            }
+            else
+            {
+                tmpWorker = workersList.get(col);
+                worksOnDay = tmpWorker.getWorks(selectedDay);
+            }
+            if(worksOnDay != null && !worksOnDay.isEmpty())
+            {
+                for(Work work: worksOnDay)
+                {
+                    
+                    List<Point> workCells = work.getCells();
+                    List<Point> tmpWorkCells = null;
+                    if(!dayMode)
+                    {
+                        if (rowAtPoint > -1 && workCells.contains(new Point(rowAtPoint,colAtPoint))) 
+                        {
+                            work.setColor(((JMenuItem)source).getBackground());
+                        }
+                    }
+                    else
+                    {
+                        tmpWorkCells = new ArrayList<>();
+                        for(Point cell : workCells)
+                        {
+                            tmpWorkCells.add(new Point(cell.x, col));
+                        }
+                        if (rowAtPoint > -1 && tmpWorkCells.contains(new Point(rowAtPoint,colAtPoint))) 
+                        {
+                            work.setColor(((JMenuItem)source).getBackground());
+                        }
+                    }
+                }
+                this.refreshTable();
+            }
+            
+        }
     }
     public void changeCellColor(int row, int col, Color color, Boolean first)
     {
@@ -362,16 +529,19 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     public void setWorkers(List <Worker> workers)
     {
         this.workersList = workers;
-        header.remove(header.getComponentCount() -1);
-        if(workersList.isEmpty())
-            workersSelectionBox = new JComboBox();
-        else
+        if(!dayMode)
         {
-            workersSelectionBox = new JComboBox(workersList.toArray());
-            workersSelectionBox.setSelectedIndex(0);
+            header.remove(header.getComponentCount() -1);
+            if(workersList.isEmpty())
+                workersSelectionBox = new JComboBox();
+            else
+            {
+                workersSelectionBox = new JComboBox(workersList.toArray());
+                workersSelectionBox.setSelectedIndex(0);
+            }
+            workersSelectionBox.addItemListener(this);
+            header.add(workersSelectionBox, BorderLayout.LINE_END);
         }
-        workersSelectionBox.addItemListener(this);
-        header.add(workersSelectionBox, BorderLayout.LINE_END);
         header.revalidate();
         header.repaint();
     }
@@ -523,6 +693,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             int[] rows = table.getSelectedRows();
             int col = table.getSelectedColumn();
             List<Point> selected = new ArrayList<>();
+            boolean selectedWork = false;
             for(int tmpRow : rows)
             {
                 selected.add(new Point(tmpRow,col));
@@ -551,6 +722,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         }
                         else if(rows.length > 0 && tmpPoints.contains(new Point(rows[0],col)))
                         {
+                            selectedWork = true;
                             table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
 
                         }
@@ -584,11 +756,13 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         else if(rows.length > 0 && tmpWorkCells.contains(new Point(rows[0],col)))
                         {
                             table.changeCellColor(tmpWorkCells, tmpWork.getColor().brighter(), Boolean.TRUE);
-
+                            selectedWork= true;
                         }
                     }
                 }
             }
+            deleteMenuButton.setEnabled(selectedWork);
+            colorsMenu.setEnabled(selectedWork);
         }
         
     }
