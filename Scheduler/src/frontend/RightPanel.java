@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.io.InputStream;
 import javax.swing.JLabel;
@@ -29,6 +30,8 @@ public class RightPanel extends JPanel {
     private JLabel annotationsLabel=new JLabel("Uwagi:");
     private JTextField race= new JTextField();
     private final JLabel raceLabel = new JLabel("Rasa psa:");
+    private JTextField phoneNo= new JTextField();
+    private final JLabel phoneNoLabel = new JLabel("Numer telefonu:");
     private JTextField dogName= new JTextField();
     private final JLabel dogNameLabel = new JLabel("Imię psa:");
     private JTextField startTime = new JTextField();
@@ -36,68 +39,59 @@ public class RightPanel extends JPanel {
     private JTextField endTime = new JTextField();
     private final JLabel endTimeLabel = new JLabel("Zakończenie pracy");
     private JPanel centerPanel;
+    private JPanel bottom;
     private JPanel header;
-    private GridBagConstraints c;
     RightPanel(){
         super(new BorderLayout());
         
-        centerPanel = new JPanel();
+        centerPanel = new JPanel(new GridLayout(0,2,10,10));
+        bottom = new JPanel(new GridLayout(0,2,10,10));
         header = new JPanel(new BorderLayout());
         JLabel headerLabel = new JLabel("Zarządzanie");
         headerLabel.setForeground(Color.WHITE);
         
-        InputStream is = RightPanel.class.getResourceAsStream("Nunito-Regular.ttf");
-        headerLabel.setFont(headerLabel.getFont().deriveFont(22.f));
 
-        
-        
         headerLabel.setBorder(new EmptyBorder(10,20,10,10));
         header.add(headerLabel,BorderLayout.LINE_START);
         header.setPreferredSize(new Dimension(0,47));
         header.setBackground(new Color(39, 60, 117).brighter());
         this.setBackground(new Color(43, 50, 60));
+        
         centerPanel.setBackground(this.getBackground());
+        bottom.setBackground(this.getBackground());
         raceLabel.setForeground(Color.WHITE);
         dogNameLabel.setForeground(Color.WHITE);
+        phoneNoLabel.setForeground(Color.WHITE);
         annotationsLabel.setForeground(Color.WHITE);
-        GridBagLayout g = new GridBagLayout();
-        centerPanel.setLayout(g);
-        c = new GridBagConstraints();
-        g.setConstraints(centerPanel, c);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx=1;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.insets = new Insets(5,0,5,0);  
-        centerPanel.add(raceLabel,c);
-        c.gridx = 1;
-        c.gridy = 0;
-        centerPanel.add(race,c);
+        centerPanel.add(phoneNoLabel);
 
-        c.gridx = 0;
-        c.gridy = 1;
-        centerPanel.add(dogNameLabel,c);
+        centerPanel.add(phoneNo);
+        
+        centerPanel.add(raceLabel);
+        race.setPreferredSize(new Dimension(130,20));
+        centerPanel.add(race);
 
-        c.gridx = 1;
-        c.gridy = 1;
-        centerPanel.add(dogName,c);
+        centerPanel.add(dogNameLabel);
 
-        c.gridx = 0;
-        c.gridy = 2;
-        centerPanel.add(annotationsLabel,c);
+        centerPanel.add(dogName);
+        
 
-        c.gridx = 1;
-        c.gridy = 2;
+        bottom.add(annotationsLabel);
         annotations.setFont(dogName.getFont());
         annotations.setLineWrap(true);
         annotations.setWrapStyleWord(true);
+        
         JScrollPane areaScrollPane = new JScrollPane(annotations);
-
-        c.gridheight= 2;
-        c.ipady=100;
-        centerPanel.add(areaScrollPane,c);
+        areaScrollPane.setPreferredSize(new Dimension(130,100));
+        bottom.add(areaScrollPane);
+        
+        centerPanel.setBorder(new EmptyBorder(20,10,0,10));
+        bottom.setBorder(new EmptyBorder(8,10,0,10));
+        JPanel gridWrapPanel = new JPanel();
+        gridWrapPanel.add(centerPanel);
+        gridWrapPanel.add(bottom);
         this.add(header, BorderLayout.PAGE_START);
-        this.add(centerPanel, BorderLayout.CENTER);
-        centerPanel.setBorder(new EmptyBorder(50,50,50,50));
+        this.add(gridWrapPanel, BorderLayout.CENTER);
+        gridWrapPanel.setBackground(this.getBackground());
     }
 }
