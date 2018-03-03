@@ -38,6 +38,10 @@ public class Work {
     {
         return this.customer;
     }
+    public void setColor(Color color)
+    {
+        this.color = color;
+    }
     public String getWorkDescription()
     {
         return this.workDescription;

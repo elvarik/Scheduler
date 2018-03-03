@@ -41,7 +41,7 @@ public class Date implements Comparator<Date>, Comparable<Date> {
         this.month = date.month;
         this.year = date.year;
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 7;
@@ -89,7 +89,18 @@ public class Date implements Comparator<Date>, Comparable<Date> {
     {
         return this.year;
     }
-
+    public void setDay(int day)
+    {
+        this.day = day;
+    }
+    public void setMonth(int month)
+    {
+        this.month = month;
+    }
+    public void setYear(int year)
+    {
+        this.year = year;
+    }
     @Override
     public String toString() {
         return day + " " + months[month-1]+ " " + year;
