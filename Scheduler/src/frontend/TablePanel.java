@@ -129,7 +129,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         headerCenter.add(left);
         headerCenter.add(right);
         header.add(headerCenter, BorderLayout.CENTER);
-        
+        dateLabel.setFont(dateLabel.getFont().deriveFont(18.f));
         setTable(currentDate, workersList);
 
     }
