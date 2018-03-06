@@ -12,7 +12,16 @@ import java.util.Comparator;
 public class Time implements Comparator<Time>, Comparable<Time>{
     
     private int hour, minute;
-   
+    public Time(String timeString)
+    {
+        int pointPosition = timeString.indexOf(":");
+        String hourString = timeString.substring(0,pointPosition);
+        String minuteString = timeString.substring(pointPosition+1, timeString.length());
+
+        this.hour = Integer.parseInt(hourString);
+        this.minute = Integer.parseInt(minuteString);
+        
+    }
     public Time(int hour, int minute)
     {
         this.hour = hour;

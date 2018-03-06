@@ -10,8 +10,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
@@ -48,6 +51,8 @@ public class RightPanel extends JPanel implements ActionListener {
     private JPanel header;
     private JLabel emerge=new JLabel("");
     private JButton addButton=new JButton("Dodaj zlecenie");
+    private TablePanel tablePanel;
+    private List<Point> selectedCells;
     RightPanel(){
         super(new BorderLayout());
         
@@ -88,9 +93,7 @@ public class RightPanel extends JPanel implements ActionListener {
 
         centerPanel.add(dogName);
         
-        
-        
-
+      
         bottom.add(annotationsLabel);
         annotations.setFont(dogName.getFont());
         annotations.setLineWrap(true);
@@ -119,15 +122,23 @@ public class RightPanel extends JPanel implements ActionListener {
         gridWrapPanel.setBackground(this.getBackground());
     }
     
-   public boolean check(){
-       if (!phoneNo.getText().matches("\\d+")){
-           
-           return false;
-       }
-       return true;
-    
-   }
+    public void setOppositePanel(TablePanel tablePanel)
+    {
+        this.tablePanel = tablePanel;
+    }
+    public boolean check(){
+        if (!phoneNo.getText().matches("\\d+")){
 
+            return false;
+        }
+        return true;
+
+    }
+    public void setSelectedCells(List<Point> cells)
+    {
+        this.selectedCells = cells;
+
+    }
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
@@ -137,6 +148,10 @@ public class RightPanel extends JPanel implements ActionListener {
                     }
                     else{
                         this.emerge.setText("Numer telefonu zawiera litery");
+                    }
+                    if(selectedCells != null)
+                    {
+                        tablePanel.addWork(null, selectedCells, header.getBackground(), annotations.getText());
                     }
                 }
     }

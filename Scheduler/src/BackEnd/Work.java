@@ -20,15 +20,21 @@ public class Work {
     private Time startTime;
     private Time endTime;
     private Customer customer;
+    private Date date;
     //private Date 
     
-    public Work (List <Point> cells,Time startTime, Time endTime, String description, Color color)
+    public Work (Date date,List <Point> cells,Time startTime, Time endTime, String description, Color color)
     {
         this.cells = cells;
         this.workDescription = description;
         this.startTime = startTime;
         this.endTime = endTime;
         this.color = color;
+        this.date = date;
+    }
+    public Date getDate()
+    {
+        return this.date;
     }
     public void setCustomer(Customer customer)
     {

@@ -55,7 +55,6 @@ public class Frame extends JFrame implements ActionListener{
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         workers = new ArrayList<>();
         right= new RightPanel();
-        
         List <Point> cells = new ArrayList<>();
         List <Point> cells2 = new ArrayList<>();
         List <Point> cells3 = new ArrayList<>();
@@ -71,16 +70,16 @@ public class Frame extends JFrame implements ActionListener{
         cells4.add(new Point(3,3));
         cells4.add(new Point(4,3));
         cells4.add(new Point(5,3));
-        Work praca = new Work(cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(39, 60, 117).brighter());
-        Work praca2 = new Work(cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(17, 155, 26));        
-        Work praca3 = new Work(cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(17, 155, 26));
-        Work praca4 = new Work(cells4, new Time(9,45), new Time(10,30), "Praca jak praca, wymagające gówno", new Color(39, 60, 117).brighter());
+        Work praca = new Work(new Date(2,1,2018), cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(39, 60, 117).brighter());
+        Work praca2 = new Work(new Date(2, 1, 2018), cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(17, 155, 26));        
+        Work praca3 = new Work(new Date(2,1,2018), cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(17, 155, 26));
+        Work praca4 = new Work(new Date(4,2,2018), cells4, new Time(9,45), new Time(10,30), "Praca jak praca, wymagające gówno", new Color(39, 60, 117).brighter());
         workers.add(new Worker("Piotr Filipkowski"));
-        workers.get(0).putWork(new Date(2,1,2018), praca);
-        workers.get(0).putWork(new Date(2,1,2018), praca3);
+        workers.get(0).putWork(praca.getDate(), praca);
+        workers.get(0).putWork(praca3.getDate(), praca3);
         workers.add(new Worker("Marcin Gałecki"));
-        workers.get(1).putWork(new Date(2, 1, 2018), praca2);
-        workers.get(1).putWork(new Date(4,2,2018),praca4);
+        workers.get(1).putWork(praca2.getDate(), praca2);
+        workers.get(1).putWork(praca4.getDate(),praca4);
         this.setPreferredSize(new Dimension(1000,700));
         setComponents();
         this.setupMenuBar();
@@ -138,6 +137,8 @@ public class Frame extends JFrame implements ActionListener{
 
         leftPanel = new TablePanel(workers, new Date());
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, right);
+        right.setOppositePanel(leftPanel);
+        leftPanel.setOppositePanel(right);
         //splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(600);
         this.add(splitPane);

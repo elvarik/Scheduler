@@ -42,6 +42,8 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import javax.swing.table.TableColumn;
 import BackEnd.TableColumnAdjuster;
+import BackEnd.Time;
+import java.awt.Component;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -49,6 +51,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.table.TableCellRenderer;
 /**
  *
  * @author Hardkor
@@ -75,6 +78,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private JMenuItem colorBlue,colorGreen, colorViolet;
     private JMenu colorsMenu;
     private int rowAtPoint,colAtPoint;
+    private RightPanel rightPanel;
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
@@ -141,6 +145,10 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.setTable(this.currentDate, workersList);
         this.revalidate();
         this.repaint();
+    }
+    public void setOppositePanel(RightPanel rightPanel)
+    {
+        this.rightPanel = rightPanel;
     }
     private void setTable(Date date, List <Worker> workersList)
     {
@@ -307,6 +315,24 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
     }
+    public void addWork(Worker worker, List<Point> cells, Color color, String workDescription)
+    {
+        String timeString = timeTable.getValueAt(cells.get(0).x, 0).toString();
+        timeString = timeString.substring(1, timeString.length());
+        Time startTime = new Time(timeString);
+        timeString = timeTable.getValueAt(cells.get(cells.size()-1).x+1, 0).toString();
+        timeString = timeString.substring(1, timeString.length());
+        Time endTime = new Time(timeString);
+        if(worker == null)
+        {
+            Worker tmpWorker = workersList.get(workersSelectionBox.getSelectedIndex());
+            Date workDate = new Date(cells.get(0).y+1, currentDate.getMonth(), currentDate.getYear());
+            Work newWork = new Work(workDate, cells, startTime, endTime,workDescription,color);
+            tmpWorker.putWork(workDate, newWork);
+            
+        }
+        this.refreshTable();
+    }
     private void switchModes(MouseEvent e)
     {
         int col = table.columnAtPoint(e.getPoint());
@@ -318,7 +344,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             header.remove(1);
             JPanel centerLabelPanel = new JPanel();
             centerLabelPanel.add(dateLabel);
-            centerLabelPanel.setBorder(new EmptyBorder(5,0,0,0));
+            centerLabelPanel.setBorder(new EmptyBorder(1,0,0,0));
             centerLabelPanel.setBackground(header.getBackground());
             header.add(centerLabelPanel, BorderLayout.CENTER);
             header.add(headerCenter, BorderLayout.LINE_END);
@@ -610,9 +636,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 col++;
             }
         }
+        table.repaint();
         
     }
-    
     private List<String> substrings(String source, int column, int cellsAmount)
     {
         List<String> strings = new ArrayList<>();
@@ -698,8 +724,10 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 selected.add(new Point(tmpRow,col));
             }
+            
             if(!dayMode)
             {
+                rightPanel.setSelectedCells(selected);
                 selectedItemIndex = workersSelectionBox.getSelectedIndex();
                 Worker tmpWorker = workersList.get(selectedItemIndex);
                 List<Work> works = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));
@@ -719,13 +747,16 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                                 table.clearSelection();
                                 return;
                             }
+                            
                         }
                         else if(rows.length > 0 && tmpPoints.contains(new Point(rows[0],col)))
                         {
                             selectedWork = true;
                             table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
+                            
 
                         }
+                        
                     }
                 }
             }
@@ -733,6 +764,10 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 Worker selectedWorker = workersList.get(col);
                 List<Work> works = selectedWorker.getWorks(selectedDay);
+                List<Point> relativelySelected = new ArrayList<>();
+                for(Point cell : selected)
+                    relativelySelected.add(new Point(cell.x, selectedDay.getDay()-1));
+                rightPanel.setSelectedCells(relativelySelected);
                 if(works != null && !works.isEmpty())
                 {
                     for(Work tmpWork : works)
@@ -757,6 +792,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         {
                             table.changeCellColor(tmpWorkCells, tmpWork.getColor().brighter(), Boolean.TRUE);
                             selectedWork= true;
+                            table.repaint();
                         }
                     }
                 }
