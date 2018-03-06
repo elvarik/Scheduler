@@ -35,6 +35,10 @@ public class TimeBoxHejHejHej extends JPanel implements ActionListener{
         this.setPreferredSize(new Dimension(150,40));
         up.setPreferredSize(new Dimension(10,10));
         down.setPreferredSize(new Dimension(10,10));
+        this.setBackground(new Color(43, 50, 60));
+        arrowPanel.setBackground(new Color(43, 50, 60));
+        up.setBackground(new Color(43, 50, 60));
+        down.setBackground(new Color(43, 50, 60));
         arrowPanel.add(up);
         arrowPanel.add(down);
         hours.setPreferredSize(new Dimension(40,30));
