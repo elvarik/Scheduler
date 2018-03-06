@@ -89,7 +89,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         headerLabel = new JLabel("Dane pracownika");
         headerLabel.setBorder(new EmptyBorder(10,10,10,10));
         headerLabel.setForeground(Color.WHITE);
-        headerLabel.setFont(headerLabel.getFont().deriveFont(16.f));
+        headerLabel.setFont(headerLabel.getFont().deriveFont(18.f));
         rightPanelHeader = new JPanel(new BorderLayout());
         rightPanelHeader.setBackground(new Color(39, 60, 117).brighter());
         rightPanelHeader.setPreferredSize(new Dimension(0,37));
