@@ -161,9 +161,8 @@ public class RightPanel extends JPanel implements ActionListener {
         buttonWrapper.add(addButton);
         
         this.add(buttonWrapper, BorderLayout.PAGE_END);
-
-        gridWrapPanel.setBackground(this.getBackground());
         setRightEnabled(false);
+        gridWrapPanel.setBackground(this.getBackground());
     }
     
     public void setOppositePanel(TablePanel tablePanel)
@@ -173,7 +172,7 @@ public class RightPanel extends JPanel implements ActionListener {
     
     public void setRightEnabled(boolean check){
         for(Component x : centerPanel.getComponents() ){
-            if(x instanceof JTextField){
+            if(!(x instanceof JLabel)){
             x.setEnabled(check);
             }
         }
@@ -182,6 +181,8 @@ public class RightPanel extends JPanel implements ActionListener {
         starttimebox.minutes.setEnabled(check);
         endtimebox.hours.setEnabled(check);
         endtimebox.minutes.setEnabled(check);
+        cardPaidYes.setEnabled(check);
+        cardPaidNo.setEnabled(check);
         addButton.setEnabled(check);
         }
     
