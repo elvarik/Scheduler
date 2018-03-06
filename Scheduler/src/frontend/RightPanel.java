@@ -163,6 +163,7 @@ public class RightPanel extends JPanel implements ActionListener {
         this.add(buttonWrapper, BorderLayout.PAGE_END);
 
         gridWrapPanel.setBackground(this.getBackground());
+        setRightEnabled(false);
     }
     
     public void setOppositePanel(TablePanel tablePanel)
@@ -172,13 +173,16 @@ public class RightPanel extends JPanel implements ActionListener {
     
     public void setRightEnabled(boolean check){
         for(Component x : centerPanel.getComponents() ){
+            if(x instanceof JTextField){
             x.setEnabled(check);
+            }
         }
         annotations.setEnabled(check);
         starttimebox.hours.setEnabled(check);
         starttimebox.minutes.setEnabled(check);
         endtimebox.hours.setEnabled(check);
         endtimebox.minutes.setEnabled(check);
+        addButton.setEnabled(check);
         }
     
     public boolean check(){
