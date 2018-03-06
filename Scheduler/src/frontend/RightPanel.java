@@ -42,21 +42,27 @@ public class RightPanel extends JPanel implements ActionListener {
     private JTextField clientName= new JTextField();
     private final JLabel clientNameLabel = new JLabel("Imię klienta:");
     private JTextField startTime = new JTextField();
-    private final JLabel startTimeLabel = new JLabel("Rozpoczęcie pracy");
+    private final JLabel startTimeLabel = new JLabel("Rozpoczęcie pracy:");
     private JTextField endTime = new JTextField();
-    private final JLabel endTimeLabel = new JLabel("Zakończenie pracy");
+    private final JLabel endTimeLabel = new JLabel("Zakończenie pracy:");
     private JPanel centerPanel;
     private JPanel bottom;
     private JComboBox Later;//pamiętaj to, na potem
     private JPanel header;
+    private JPanel medium;
     private JLabel emerge=new JLabel("");
     private JButton addButton=new JButton("Dodaj zlecenie");
     private TablePanel tablePanel;
     private List<Point> selectedCells;
+    private TimeBoxHejHejHej starttimebox=new TimeBoxHejHejHej();
+    private TimeBoxHejHejHej endtimebox=new TimeBoxHejHejHej();
+ 
+    
     RightPanel(){
         super(new BorderLayout());
         
         centerPanel = new JPanel(new GridLayout(0,2,-40,10));
+        medium = new JPanel(new GridLayout(0,2,-40,10));
         bottom = new JPanel(new GridLayout(0,2,-40,10));
         header = new JPanel(new BorderLayout());
         JLabel headerLabel = new JLabel("Zarządzanie");
@@ -69,14 +75,19 @@ public class RightPanel extends JPanel implements ActionListener {
         header.setPreferredSize(new Dimension(0,47));
         header.setBackground(new Color(39, 60, 117).brighter());
         this.setBackground(new Color(43, 50, 60));
+        medium.setBackground(this.getBackground());
         
         centerPanel.setBackground(this.getBackground());
         bottom.setBackground(this.getBackground());
+        starttimebox.setBackground(this.getBackground());
+        endtimebox.setBackground(this.getBackground());
         raceLabel.setForeground(Color.WHITE);
         dogNameLabel.setForeground(Color.WHITE);
         clientNameLabel.setForeground(Color.WHITE);
         phoneNoLabel.setForeground(Color.WHITE);
         annotationsLabel.setForeground(Color.WHITE);
+        startTimeLabel.setForeground(Color.WHITE);
+        endTimeLabel.setForeground(Color.WHITE);
         centerPanel.add(phoneNoLabel);
 
         centerPanel.add(phoneNo);
@@ -92,8 +103,13 @@ public class RightPanel extends JPanel implements ActionListener {
         centerPanel.add(dogNameLabel);
 
         centerPanel.add(dogName);
+       
         
-      
+        medium.add(startTimeLabel);
+        medium.add(starttimebox);
+        medium.add(endTimeLabel);
+        medium.add(endtimebox);
+        
         bottom.add(annotationsLabel);
         annotations.setFont(dogName.getFont());
         annotations.setLineWrap(true);
@@ -107,18 +123,25 @@ public class RightPanel extends JPanel implements ActionListener {
 
         centerPanel.setBorder(new EmptyBorder(20,10,0,10));
         bottom.setBorder(new EmptyBorder(8,10,0,10));
+        medium.setBorder(new EmptyBorder(8,10,0,10));
         JPanel gridWrapPanel = new JPanel();
         gridWrapPanel.add(centerPanel);
+        gridWrapPanel.add(medium);
         gridWrapPanel.add(bottom);
         addButton.addActionListener(this);
+        
         this.add(header, BorderLayout.PAGE_START);
+        
         this.add(gridWrapPanel, BorderLayout.CENTER);
+        
         JPanel buttonWrapper=new JPanel();
         buttonWrapper.setBackground(this.getBackground());
         addButton.setBackground(this.getBackground());
         buttonWrapper.setBorder(new EmptyBorder(10,10,20,10));
         buttonWrapper.add(addButton);
+        
         this.add(buttonWrapper, BorderLayout.PAGE_END);
+        
         gridWrapPanel.setBackground(this.getBackground());
     }
     

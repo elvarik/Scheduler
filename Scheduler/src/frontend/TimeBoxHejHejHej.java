@@ -5,12 +5,51 @@
  */
 package frontend;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 /**
  *
  * @author Pioty
  */
-public class TimeBoxHejHejHej extends JPanel{
-    
+public class TimeBoxHejHejHej extends JPanel implements ActionListener{
+    private JTextField hours= new JTextField();;
+    private JTextField minutes= new JTextField();;
+    private JLabel doubledot=new JLabel(":");
+    private JButton up= new JButton ("↑");
+    private JButton down=new JButton("↓");
+    private JPanel arrowPanel;
+    TimeBoxHejHejHej(){
+       // super();
+        arrowPanel = new JPanel(new GridLayout(0,1,0,0));
+        arrowPanel.setPreferredSize(new Dimension(40,30));
+        this.setBorder(new EmptyBorder(0,0,0,0));
+        this.setPreferredSize(new Dimension(150,40));
+        up.setPreferredSize(new Dimension(10,10));
+        down.setPreferredSize(new Dimension(10,10));
+        arrowPanel.add(up);
+        arrowPanel.add(down);
+        hours.setPreferredSize(new Dimension(40,30));
+        minutes.setPreferredSize(new Dimension(40,30));
+        doubledot.setForeground(Color.WHITE);
+        up.addActionListener(this);
+        down.addActionListener(this);
+        this.add(hours);
+        this.add(doubledot);
+        this.add(minutes);
+        this.add(arrowPanel);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
