@@ -46,6 +46,7 @@ import BackEnd.Time;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -145,6 +146,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         header.add(headerCenter, BorderLayout.CENTER);
         dateLabel.setFont(dateLabel.getFont().deriveFont(18.f));
         setTable(currentDate, workersList);
+        deleteMenuButton.setEnabled(false);
+            colorsMenu.setEnabled(false);
 
     }
     public void refreshTable()
@@ -291,9 +294,10 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                        
                         rowAtPoint = table.rowAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), table));
                         colAtPoint = table.columnAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), table));
-                        if (rowAtPoint > -1) {
+                        if (rowAtPoint > -1 && table.getSelectedRows().length ==1) {
                             table.setColumnSelectionInterval(colAtPoint, colAtPoint);
                             table.setRowSelectionInterval(rowAtPoint, rowAtPoint);
                         }
@@ -517,7 +521,13 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private void deleteWork()
     {
         int col = table.getSelectedColumn();
-        int row = table.getSelectedRow();
+        int[] rows = table.getSelectedRows();
+        List<Point> selected = new ArrayList<>();
+        boolean multipleDelete = false;
+        for(int tmpRow : rows)
+        {
+            selected.add(new Point(tmpRow,col));
+        }
         Worker tmpWorker;
         List<Work> worksOnDay;
         if(!dayMode)
@@ -530,7 +540,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             tmpWorker = workersList.get(col);
             worksOnDay = tmpWorker.getWorks(selectedDay);
         }
-        Work toDelete = null;
+        List<Work> toDelete = new ArrayList<>();
         int message = JOptionPane.NO_OPTION;
         if(worksOnDay != null && !worksOnDay.isEmpty())
         {
@@ -541,12 +551,27 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 List<Point> tmpWorkCells = null;
                 if(!dayMode)
                 {
-                    if (row > -1 && workCells.contains(new Point(row,col))) 
+                    if(rows.length>1)
                     {
-                        Object[] options = {"Tak", "Nie"};
-                        message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                        if(message == JOptionPane.YES_OPTION)
-                            toDelete = work;
+                        
+                        Set<Point> selectedSet = new HashSet<>(selected);
+                        Set<Point> workCellsSet = new HashSet<>(workCells);
+                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                        {
+                            
+                            toDelete.add(work);
+                            multipleDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        if (rows[0] > -1 && workCells.contains(new Point(rows[0],col))) 
+                        {
+                            Object[] options = {"Tak", "Nie"};
+                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                            if(message == JOptionPane.YES_OPTION)
+                                toDelete.add(work);
+                        }
                     }
                 }
                 else
@@ -556,17 +581,45 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     {
                         tmpWorkCells.add(new Point(cell.x, col));
                     }
-                    if (row > -1 && tmpWorkCells.contains(new Point(row,col))) 
+                    if(rows.length>1)
                     {
-                        Object[] options = {"Tak", "Nie"};
-                        message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                        if(message == JOptionPane.YES_OPTION)
-                            toDelete = work;
+                        
+                        Set<Point> selectedSet = new HashSet<>(selected);
+                        Set<Point> workCellsSet = new HashSet<>(tmpWorkCells);
+                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                        {
+                            
+                            toDelete.add(work);
+                            multipleDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        if (rows[0] > -1 && tmpWorkCells.contains(new Point(rows[0],col))) 
+                        {
+                            Object[] options = {"Tak", "Nie"};
+                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                            if(message == JOptionPane.YES_OPTION)
+                                toDelete.add(work);
+                        }
                     }
                 }
             }
-
-            worksOnDay.remove(toDelete);
+            if(multipleDelete)
+            {
+                Object[] options = {"Tak", "Nie"};
+                message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                if(message == JOptionPane.YES_OPTION)
+                {
+                    for(Work work : toDelete)
+                        worksOnDay.remove(work);
+                }
+            }
+            else
+            {
+                for(Work work : toDelete)
+                        worksOnDay.remove(work);
+            }
             if(message == JOptionPane.YES_OPTION)
                 refreshWithScroll();
         } 
@@ -593,6 +646,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 workersSelectionBox = new JComboBox(workersList.toArray());
                 workersSelectionBox.setSelectedIndex(0);
+                selectedItemIndex = 0;
             }
             workersSelectionBox.addItemListener(this);
             header.add(workersSelectionBox, BorderLayout.LINE_END);
@@ -601,8 +655,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         header.repaint();
     }
     public void setWorkCells()
-    {
-        if(!dayMode)
+    {  
+        if(!dayMode &&!workersList.isEmpty())
         {
             selectedItemIndex = workersSelectionBox.getSelectedIndex();
             Worker tmp = workersList.get(selectedItemIndex);
@@ -635,7 +689,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                }
             }
         }
-        else
+        else if(!workersList.isEmpty())
         {
             int col = 0;
             for(Worker worker : workersList)
@@ -704,12 +758,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     @Override
     public void itemStateChanged(ItemEvent ie) {
         selectedItemIndex = workersSelectionBox.getSelectedIndex();
-        header.remove(header.getComponentCount() -1);
-        this.removeAll();
-        this.setTable(currentDate, workersList);
-        this.setWorkCells();
-        this.revalidate();
-        this.repaint();
+        this.refreshWithScroll();
     }
 
     @Override
@@ -742,13 +791,14 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         
-        if(!lse.getValueIsAdjusting())
+        if(!lse.getValueIsAdjusting() && !workersList.isEmpty())
         {
             this.setWorkCells();
             int[] rows = table.getSelectedRows();
             int col = table.getSelectedColumn();
             List<Point> selected = new ArrayList<>();
             boolean selectedWork = false;
+            boolean selectedWorks = false;
             for(int tmpRow : rows)
             {
                 selected.add(new Point(tmpRow,col));
@@ -773,8 +823,11 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                             Set<Point> workCellsSet = new HashSet<>(tmpPoints);
                             if(selectedSet.stream().anyMatch(workCellsSet::contains))
                             {
-                                table.clearSelection();
-                                return;
+//                                table.clearSelection();
+//                                return;
+                                table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
+                                selectedWorks = true;
+                                
                             }
                             
                         }
@@ -812,8 +865,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                             Set<Point> workCellsSet = new HashSet<>(tmpWorkCells);
                             if(selectedSet.stream().anyMatch(workCellsSet::contains))
                             {
-                                table.clearSelection();
-                                return;
+                                table.changeCellColor(tmpWorkCells, tmpWork.getColor().brighter(), Boolean.TRUE);
+                                selectedWorks = true;
+                                table.repaint();
                             }
                         }
                         else if(rows.length > 0 && tmpWorkCells.contains(new Point(rows[0],col)))
@@ -825,7 +879,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     }
                 }
             }
-            deleteMenuButton.setEnabled(selectedWork);
+            deleteMenuButton.setEnabled(selectedWork || selectedWorks);
             colorsMenu.setEnabled(selectedWork);
         }
         
