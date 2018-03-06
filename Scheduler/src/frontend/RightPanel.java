@@ -7,6 +7,7 @@ package frontend;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 
 import java.awt.GridLayout;
@@ -101,7 +102,7 @@ public class RightPanel extends JPanel implements ActionListener {
         centerPanel.add(race);
 
         centerPanel.add(dogNameLabel);
-
+        
         centerPanel.add(dogName);
        
         
@@ -131,9 +132,7 @@ public class RightPanel extends JPanel implements ActionListener {
         addButton.addActionListener(this);
         
         this.add(header, BorderLayout.PAGE_START);
-        
         this.add(gridWrapPanel, BorderLayout.CENTER);
-        
         JPanel buttonWrapper=new JPanel();
         buttonWrapper.setBackground(this.getBackground());
         addButton.setBackground(this.getBackground());
@@ -141,7 +140,7 @@ public class RightPanel extends JPanel implements ActionListener {
         buttonWrapper.add(addButton);
         
         this.add(buttonWrapper, BorderLayout.PAGE_END);
-        
+
         gridWrapPanel.setBackground(this.getBackground());
     }
     
@@ -149,6 +148,18 @@ public class RightPanel extends JPanel implements ActionListener {
     {
         this.tablePanel = tablePanel;
     }
+    
+    public void setRightEnabled(boolean check){
+        for(Component x : centerPanel.getComponents() ){
+            x.setEnabled(check);
+        }
+        annotations.setEnabled(check);
+        starttimebox.hours.setEnabled(check);
+        starttimebox.minutes.setEnabled(check);
+        endtimebox.hours.setEnabled(check);
+        endtimebox.minutes.setEnabled(check);
+        }
+    
     public boolean check(){
         if (!phoneNo.getText().matches("\\d+")){
 

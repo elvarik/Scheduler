@@ -21,8 +21,8 @@ import BackEnd.JTextFieldLimit;
  * @author Pioty
  */
 public class TimeBoxHejHejHej extends JPanel implements ActionListener{
-    private JTextField hours= new JTextField();;
-    private JTextField minutes= new JTextField();;
+     JTextField hours= new JTextField();;
+    JTextField minutes= new JTextField();;
     private JLabel doubledot=new JLabel(":");
     private JButton up= new JButton ("↑");
     private JButton down=new JButton("↓");
