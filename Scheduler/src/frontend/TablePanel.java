@@ -294,10 +294,18 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {
+                        int[] rows = table.getSelectedRows();
+                        int col = table.getSelectedColumn();
+                        List<Point> selected = new ArrayList<>();
+                        if(col > -1 && rows.length >=1)
+                        {
+                            for(int row : rows)
+                                selected.add(new Point(row,col));
+                        }
                         
                         rowAtPoint = table.rowAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), table));
                         colAtPoint = table.columnAtPoint(SwingUtilities.convertPoint(popupMenu, new Point(0, 0), table));
-                        if (rowAtPoint > -1 && table.getSelectedRows().length ==1) {
+                        if (rowAtPoint > -1 && !selected.contains(new Point(rowAtPoint,colAtPoint))) {
                             table.setColumnSelectionInterval(colAtPoint, colAtPoint);
                             table.setRowSelectionInterval(rowAtPoint, rowAtPoint);
                         }
@@ -879,7 +887,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     }
                 }
             }
-            rightPanel.setRightEnabled(!(selectedWork || selectedWorks));
+            rightPanel.setRightEnabled(!(selectedWorks));
             deleteMenuButton.setEnabled(selectedWork || selectedWorks);
             colorsMenu.setEnabled(selectedWork);
         }
