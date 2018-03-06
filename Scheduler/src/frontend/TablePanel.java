@@ -879,6 +879,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     }
                 }
             }
+            rightPanel.setRightEnabled(!(selectedWork || selectedWorks));
             deleteMenuButton.setEnabled(selectedWork || selectedWorks);
             colorsMenu.setEnabled(selectedWork);
         }
