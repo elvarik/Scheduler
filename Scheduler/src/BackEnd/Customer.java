@@ -13,28 +13,17 @@ import java.util.TreeMap;
  * @author Hardkor
  */
 public class Customer {
+    private String name;
     private String dogName;
     private String dogRace;
     private String phoneNumber;
-    private Map<DateTime, Appointment> appointments;
-    public Customer(String dogName, String dogRace, String phoneNumber)
+    public Customer(String name,String dogName, String dogRace, String phoneNumber)
     {
+        this.name = name;
         this.dogName= dogName;
         this.dogRace = dogRace;
         this.phoneNumber = phoneNumber;
-        this.appointments = new TreeMap<>();
     }
-    public void putAppointment(DateTime date, Appointment appointment)
-    {
-        this.appointments.put(date, appointment);
-    }
-    public Map<DateTime, Appointment> getAppointments()
-    {
-        return this.appointments;
-    }
-    public Appointment getAppointment(DateTime date)
-    {
-        return this.appointments.get(date);
-    }
+    
     
 }

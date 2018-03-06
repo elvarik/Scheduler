@@ -15,7 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-
+import BackEnd.JTextFieldLimit;
 /**
  *
  * @author Pioty
@@ -43,6 +43,8 @@ public class TimeBoxHejHejHej extends JPanel implements ActionListener{
         arrowPanel.add(down);
         hours.setPreferredSize(new Dimension(40,30));
         minutes.setPreferredSize(new Dimension(40,30));
+        hours.setDocument(new JTextFieldLimit(2));
+        minutes.setDocument(new JTextFieldLimit(2));
         doubledot.setForeground(Color.WHITE);
         up.addActionListener(this);
         down.addActionListener(this);

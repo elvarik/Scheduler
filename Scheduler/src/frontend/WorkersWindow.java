@@ -81,6 +81,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
     {
         super(father,"Pracownicy", true);
         this.workers = workers;
+
         popup = new JPopupMenu();
         copyItem = new JMenuItem("Kopiuj");
         copyItem.addActionListener(this);
@@ -123,6 +124,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         //workersList.addListSelectionListener(this);
         workersList.setVisibleRowCount(-1);
         workersList.setFont(workersList.getFont().deriveFont(12.0f));
+        
         DefaultListCellRenderer renderer = (DefaultListCellRenderer) workersList.getCellRenderer();
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
         workersList.setSelectionBackground(new Color(39, 60, 117).brighter());
@@ -323,6 +325,7 @@ public class WorkersWindow extends JDialog implements ListSelectionListener,Acti
         addButton.setEnabled(true);
         if(workersList.getSelectedIndex() != -1)
         okButton.setEnabled(true);
+        
     }
 
     @Override

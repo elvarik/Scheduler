@@ -44,6 +44,8 @@ import javax.swing.table.TableColumn;
 import BackEnd.TableColumnAdjuster;
 import BackEnd.Time;
 import java.awt.Component;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -56,7 +58,7 @@ import javax.swing.table.TableCellRenderer;
  *
  * @author Hardkor
  */
-public class TablePanel extends JPanel implements ActionListener, ItemListener, TableColumnModelListener, ListSelectionListener{
+public class TablePanel extends JPanel implements ActionListener, ItemListener, TableColumnModelListener, ListSelectionListener, KeyListener{
     
     private List <Worker> workersList;
     private JButton today;
@@ -79,9 +81,12 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private JMenu colorsMenu;
     private int rowAtPoint,colAtPoint;
     private RightPanel rightPanel;
+    private JPanel headerLeft;
+    private JScrollPane scrollPane;
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
+        
         popupMenu = new JPopupMenu();
         popupMenu.setPreferredSize(new Dimension(100,50));
         colorsMenu = new JMenu("Kolor");
@@ -108,16 +113,18 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         popupMenu.add(colorsMenu);
         popupMenu.add(deleteMenuButton);
         today = new JButton("Dzisiaj");
-        left = new JButton("<");
-        right = new JButton(">");
+        left = new JButton("◄");
+        right = new JButton("►");
         left.addActionListener(this);
         right.addActionListener(this);
         today.addActionListener(this);
         header = new JPanel(new BorderLayout());
         
         headerCenter = new JPanel();
+        headerLeft = new JPanel();
         header.setBackground(new Color(39, 60, 117).brighter());
         headerCenter.setBackground(header.getBackground());
+        headerLeft.setBackground(header.getBackground());
         left.setBackground(header.getBackground());
         right.setBackground(header.getBackground());
         today.setBackground(header.getBackground());
@@ -127,11 +134,14 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.workersList = workersList;
         dateLabel = new JLabel(date.monthYearString());
         dateLabel.setForeground(Color.WHITE);
-        
-        header.add(today, BorderLayout.LINE_START);
+        headerLeft.add(today);
+        headerLeft.add(left);
+        headerLeft.add(right);
+        header.add(headerLeft, BorderLayout.LINE_START);
+        //today.setPreferredSize(new Dimension(70,30));
         headerCenter.add(dateLabel);
-        headerCenter.add(left);
-        headerCenter.add(right);
+        //headerCenter.add(left);
+        //headerCenter.add(right);
         header.add(headerCenter, BorderLayout.CENTER);
         dateLabel.setFont(dateLabel.getFont().deriveFont(18.f));
         setTable(currentDate, workersList);
@@ -261,7 +271,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         timeTable.setRowHeight(20);
         timeTable.getColumnModel().getColumn(0).setPreferredWidth(50);
         timeTable.getTableHeader().setResizingAllowed(false);
-        JScrollPane scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane = new JScrollPane(table,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         timeScrollPane.getVerticalScrollBar().setModel(scrollPane.getVerticalScrollBar().getModel());
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.setCellSelectionEnabled(true);
@@ -311,7 +321,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             }
         });
         
-        
+        table.addKeyListener(this);
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
     }
@@ -325,13 +335,22 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         Time endTime = new Time(timeString);
         if(worker == null)
         {
-            Worker tmpWorker = workersList.get(workersSelectionBox.getSelectedIndex());
+            Worker tmpWorker;
+            if(!dayMode)
+               tmpWorker = workersList.get(workersSelectionBox.getSelectedIndex());
+            else
+            {
+                tmpWorker = workersList.get(cells.get(0).y);
+                List<Point> tmpCells = new ArrayList<>();
+                for(Point cell : cells)
+                    tmpCells.add(new Point(cell.x, selectedDay.getDay()-1));
+                cells = tmpCells;
+            }
             Date workDate = new Date(cells.get(0).y+1, currentDate.getMonth(), currentDate.getYear());
             Work newWork = new Work(workDate, cells, startTime, endTime,workDescription,color);
             tmpWorker.putWork(workDate, newWork);
-            
         }
-        this.refreshTable();
+        this.refreshWithScroll();
     }
     private void switchModes(MouseEvent e)
     {
@@ -340,8 +359,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         {
             selectedDay = new Date(col+1, currentDate.getMonth(), currentDate.getYear());
             header.remove(header.getComponentCount() -1);
-            headerCenter.remove(0);
-            header.remove(1);
+
             JPanel centerLabelPanel = new JPanel();
             centerLabelPanel.add(dateLabel);
             centerLabelPanel.setBorder(new EmptyBorder(1,0,0,0));
@@ -352,7 +370,6 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         else
         {
             headerCenter.add(dateLabel, 0);
-            //header.remove(1);
             header.remove(1);
             header.add(headerCenter, BorderLayout.CENTER);
             selectedItemIndex = col;
@@ -447,59 +464,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         }
         else if(source == deleteMenuButton)
         {
-            int col = table.getSelectedColumn();
-            Worker tmpWorker;
-            List<Work> worksOnDay;
-            if(!dayMode)
-            {
-                tmpWorker = workersList.get(selectedItemIndex);
-                worksOnDay = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));;
-            }
-            else
-            {
-                tmpWorker = workersList.get(col);
-                worksOnDay = tmpWorker.getWorks(selectedDay);
-            }
-            Work toDelete = null;
-            int message = JOptionPane.NO_OPTION;
-            if(worksOnDay != null && !worksOnDay.isEmpty())
-            {
-                for(Work work: worksOnDay)
-                {
-                    
-                    List<Point> workCells = work.getCells();
-                    List<Point> tmpWorkCells = null;
-                    if(!dayMode)
-                    {
-                        if (rowAtPoint > -1 && workCells.contains(new Point(rowAtPoint,colAtPoint))) 
-                        {
-                            Object[] options = {"Tak", "Nie"};
-                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                            if(message == JOptionPane.YES_OPTION)
-                                toDelete = work;
-                        }
-                    }
-                    else
-                    {
-                        tmpWorkCells = new ArrayList<>();
-                        for(Point cell : workCells)
-                        {
-                            tmpWorkCells.add(new Point(cell.x, col));
-                        }
-                        if (rowAtPoint > -1 && tmpWorkCells.contains(new Point(rowAtPoint,colAtPoint))) 
-                        {
-                            Object[] options = {"Tak", "Nie"};
-                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                            if(message == JOptionPane.YES_OPTION)
-                                toDelete = work;
-                        }
-                    }
-                }
-                
-                worksOnDay.remove(toDelete);
-                if(message == JOptionPane.YES_OPTION)
-                    this.refreshTable();   
-            } 
+            this.deleteWork();
         }
         else if(source == colorBlue || source == colorGreen || source == colorViolet)
         {
@@ -543,10 +508,74 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         }
                     }
                 }
-                this.refreshTable();
+                this.refreshWithScroll();
+                
             }
             
         }
+    }
+    private void deleteWork()
+    {
+        int col = table.getSelectedColumn();
+        int row = table.getSelectedRow();
+        Worker tmpWorker;
+        List<Work> worksOnDay;
+        if(!dayMode)
+        {
+            tmpWorker = workersList.get(selectedItemIndex);
+            worksOnDay = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));;
+        }
+        else
+        {
+            tmpWorker = workersList.get(col);
+            worksOnDay = tmpWorker.getWorks(selectedDay);
+        }
+        Work toDelete = null;
+        int message = JOptionPane.NO_OPTION;
+        if(worksOnDay != null && !worksOnDay.isEmpty())
+        {
+            for(Work work: worksOnDay)
+            {
+
+                List<Point> workCells = work.getCells();
+                List<Point> tmpWorkCells = null;
+                if(!dayMode)
+                {
+                    if (row > -1 && workCells.contains(new Point(row,col))) 
+                    {
+                        Object[] options = {"Tak", "Nie"};
+                        message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                        if(message == JOptionPane.YES_OPTION)
+                            toDelete = work;
+                    }
+                }
+                else
+                {
+                    tmpWorkCells = new ArrayList<>();
+                    for(Point cell : workCells)
+                    {
+                        tmpWorkCells.add(new Point(cell.x, col));
+                    }
+                    if (row > -1 && tmpWorkCells.contains(new Point(row,col))) 
+                    {
+                        Object[] options = {"Tak", "Nie"};
+                        message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                        if(message == JOptionPane.YES_OPTION)
+                            toDelete = work;
+                    }
+                }
+            }
+
+            worksOnDay.remove(toDelete);
+            if(message == JOptionPane.YES_OPTION)
+                refreshWithScroll();
+        } 
+    }
+    private void refreshWithScroll()
+    {
+        Point scrollPos = scrollPane.getViewport().getViewPosition();
+        this.refreshTable();
+        scrollPane.getViewport().setViewPosition(scrollPos);
     }
     public void changeCellColor(int row, int col, Color color, Boolean first)
     {
@@ -764,10 +793,9 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 Worker selectedWorker = workersList.get(col);
                 List<Work> works = selectedWorker.getWorks(selectedDay);
-                List<Point> relativelySelected = new ArrayList<>();
-                for(Point cell : selected)
-                    relativelySelected.add(new Point(cell.x, selectedDay.getDay()-1));
-                rightPanel.setSelectedCells(relativelySelected);
+                
+                rightPanel.setSelectedCells(selected);
+                
                 if(works != null && !works.isEmpty())
                 {
                     for(Work tmpWork : works)
@@ -801,5 +829,20 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             colorsMenu.setEnabled(selectedWork);
         }
         
+    }
+
+    @Override
+    public void keyTyped(KeyEvent ke) {
+        
+    }
+
+    @Override
+    public void keyPressed(KeyEvent ke) {
+        if(ke.getKeyCode() == 127)
+            this.deleteWork();
+    }
+
+    @Override
+    public void keyReleased(KeyEvent ke) {
     }
 }
