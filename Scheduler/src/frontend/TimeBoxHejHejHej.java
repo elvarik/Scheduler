@@ -31,7 +31,7 @@ public class TimeBoxHejHejHej extends JPanel implements ActionListener{
        // super();
         arrowPanel = new JPanel(new GridLayout(0,1,0,0));
         arrowPanel.setPreferredSize(new Dimension(40,30));
-        this.setBorder(new EmptyBorder(0,0,0,0));
+        //this.setBorder(new EmptyBorder(0,0,0,0));
         this.setPreferredSize(new Dimension(150,40));
         up.setPreferredSize(new Dimension(10,10));
         down.setPreferredSize(new Dimension(10,10));

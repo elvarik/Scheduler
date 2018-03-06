@@ -16,11 +16,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -36,6 +38,8 @@ public class RightPanel extends JPanel implements ActionListener {
     private JLabel annotationsLabel=new JLabel("Uwagi:");
     private JTextField race= new JTextField();
     private final JLabel raceLabel = new JLabel("Rasa psa:");
+    private JTextField price= new JTextField();
+    private final JLabel priceLabel = new JLabel("Cena:");
     private JTextField phoneNo=new JTextField();
     private final JLabel phoneNoLabel = new JLabel("Numer telefonu:");
     private JTextField dogName= new JTextField();
@@ -57,7 +61,11 @@ public class RightPanel extends JPanel implements ActionListener {
     private List<Point> selectedCells;
     private TimeBoxHejHejHej starttimebox=new TimeBoxHejHejHej();
     private TimeBoxHejHejHej endtimebox=new TimeBoxHejHejHej();
- 
+     private JLabel cardPaidLabel=new JLabel("Czy płatne kartą:");
+    private JRadioButton cardPaidYes = new JRadioButton("Tak");
+    private JRadioButton cardPaidNo = new JRadioButton("Nie");
+    private JPanel cardPanel= new JPanel(new GridLayout(0,2,0,0));
+    private ButtonGroup cardPaidGroup=new ButtonGroup();
     
     RightPanel(){
         super(new BorderLayout());
@@ -70,18 +78,23 @@ public class RightPanel extends JPanel implements ActionListener {
         headerLabel.setForeground(Color.WHITE);
         headerLabel.setFont(headerLabel.getFont().deriveFont(18.f));
         emerge.setForeground(Color.WHITE);
-        
+        cardPaidNo.setSelected(true);
         headerLabel.setBorder(new EmptyBorder(10,20,10,10));
         header.add(headerLabel,BorderLayout.LINE_START);
         header.setPreferredSize(new Dimension(0,47));
         header.setBackground(new Color(39, 60, 117).brighter());
         this.setBackground(new Color(43, 50, 60));
         medium.setBackground(this.getBackground());
-        
+        cardPaidGroup.add(cardPaidYes);
+        cardPaidGroup.add(cardPaidNo);
         centerPanel.setBackground(this.getBackground());
         bottom.setBackground(this.getBackground());
         starttimebox.setBackground(this.getBackground());
         endtimebox.setBackground(this.getBackground());
+        cardPaidYes.setBackground(this.getBackground());
+        cardPaidNo.setBackground(this.getBackground());
+        cardPaidYes.setForeground(Color.WHITE);
+        cardPaidNo.setForeground(Color.WHITE);
         raceLabel.setForeground(Color.WHITE);
         dogNameLabel.setForeground(Color.WHITE);
         clientNameLabel.setForeground(Color.WHITE);
@@ -89,6 +102,8 @@ public class RightPanel extends JPanel implements ActionListener {
         annotationsLabel.setForeground(Color.WHITE);
         startTimeLabel.setForeground(Color.WHITE);
         endTimeLabel.setForeground(Color.WHITE);
+        priceLabel.setForeground(Color.WHITE);
+        cardPaidLabel.setForeground(Color.WHITE);
         centerPanel.add(phoneNoLabel);
 
         centerPanel.add(phoneNo);
@@ -104,6 +119,12 @@ public class RightPanel extends JPanel implements ActionListener {
         centerPanel.add(dogNameLabel);
         
         centerPanel.add(dogName);
+        centerPanel.add(priceLabel);
+        centerPanel.add(price);
+        centerPanel.add(cardPaidLabel);
+        cardPanel.add(cardPaidYes);
+        cardPanel.add(cardPaidNo);
+        centerPanel.add(cardPanel);
        
         
         medium.add(startTimeLabel);
