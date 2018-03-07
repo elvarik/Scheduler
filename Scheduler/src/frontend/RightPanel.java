@@ -187,7 +187,7 @@ public class RightPanel extends JPanel implements ActionListener {
         }
     
     public boolean check(){
-        if (!phoneNo.getText().matches("\\d+")){
+        if (!(phoneNo.getText().matches("\\d+") ||phoneNo.getText().matches(""))){
 
             return false;
         }

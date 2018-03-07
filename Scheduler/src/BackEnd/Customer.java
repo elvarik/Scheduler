@@ -5,14 +5,14 @@
  */
 package BackEnd;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.Serializable;
+
 
 /**
  *
  * @author Hardkor
  */
-public class Customer {
+public class Customer implements Serializable{
     private String name;
     private String dogName;
     private String dogRace;

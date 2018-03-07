@@ -7,13 +7,14 @@ package BackEnd;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.io.Serializable;
 import java.util.List;
 
 /**
  *
  * @author Hardkor
  */
-public class Work {
+public class Work implements Serializable{
     private String workDescription;
     private Color color;
     private List<Point> cells;

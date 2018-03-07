@@ -4,12 +4,13 @@
  * and open the template in the editor.
  */
 package BackEnd;
+import java.io.Serializable;
 import java.util.Comparator;
 /**
  *
  * @author Hardkor
  */
-public class Time implements Comparator<Time>, Comparable<Time>{
+public class Time implements Comparator<Time>, Comparable<Time>, Serializable{
     
     private int hour, minute;
     public Time(String timeString)

@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package BackEnd;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Set;
  *
  * @author Hardkor
  */
-public class Worker {
+public class Worker implements Serializable{
     private String nameSurname;
     private Map<Date, List<Work>> works;
     private String eMail;

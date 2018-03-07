@@ -5,6 +5,7 @@
  */
 package BackEnd;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 
@@ -12,7 +13,7 @@ import java.util.Comparator;
  *
  * @author Hardkor
  */
-public class Date implements Comparator<Date>, Comparable<Date> {
+public class Date implements Comparator<Date>, Comparable<Date>, Serializable {
     protected int day, month, year;
     protected static final String[] months={"styczeń","luty","marzec","kwiecień","maj",
         "czerwiec","lipiec","sierpień","wrzesień","październik",

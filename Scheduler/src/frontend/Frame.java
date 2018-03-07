@@ -41,7 +41,7 @@ public class Frame extends JFrame implements ActionListener{
     CalendarPlotter Cal=new CalendarPlotter();
     TablePanel leftPanel;
     RightPanel right;
-    public Frame(){
+    public Frame(List<Worker> workers){
         
         super("Scheduler");
         ImageIcon icon = new ImageIcon("newIcon.png");
@@ -50,36 +50,35 @@ public class Frame extends JFrame implements ActionListener{
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
         }
-        
+        this.workers=workers;
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        workers = new ArrayList<>();
         right= new RightPanel();
-        List <Point> cells = new ArrayList<>();
-        List <Point> cells2 = new ArrayList<>();
-        List <Point> cells3 = new ArrayList<>();
-        List <Point> cells4 = new ArrayList<>();
-        cells.add(new Point(1,1));
-        cells.add(new Point(2,1));
-        cells2.add(new Point(3,1));
-        cells2.add(new Point(4,1));
-        cells2.add(new Point(5,1));
-        cells3.add(new Point(3,1));
-        cells3.add(new Point(4,1));
-        cells3.add(new Point(5,1));
-        cells4.add(new Point(3,3));
-        cells4.add(new Point(4,3));
-        cells4.add(new Point(5,3));
-        Work praca = new Work(new Date(2,1,2018), cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(39, 60, 117).brighter());
-        Work praca2 = new Work(new Date(2, 1, 2018), cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(17, 155, 26));        
-        Work praca3 = new Work(new Date(2,1,2018), cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(17, 155, 26));
-        Work praca4 = new Work(new Date(4,2,2018), cells4, new Time(9,45), new Time(10,30), "Praca jak praca, wymagające gówno", new Color(39, 60, 117).brighter());
-        workers.add(new Worker("Piotr Filipkowski"));
-        workers.get(0).putWork(praca.getDate(), praca);
-        workers.get(0).putWork(praca3.getDate(), praca3);
-        workers.add(new Worker("Marcin Gałecki"));
-        workers.get(1).putWork(praca2.getDate(), praca2);
-        workers.get(1).putWork(praca4.getDate(),praca4);
+//        List <Point> cells = new ArrayList<>();
+//        List <Point> cells2 = new ArrayList<>();
+//        List <Point> cells3 = new ArrayList<>();
+//        List <Point> cells4 = new ArrayList<>();
+//        cells.add(new Point(1,1));
+//        cells.add(new Point(2,1));
+//        cells2.add(new Point(3,1));
+//        cells2.add(new Point(4,1));
+//        cells2.add(new Point(5,1));
+//        cells3.add(new Point(3,1));
+//        cells3.add(new Point(4,1));
+//        cells3.add(new Point(5,1));
+//        cells4.add(new Point(3,3));
+//        cells4.add(new Point(4,3));
+//        cells4.add(new Point(5,3));
+//        Work praca = new Work(new Date(2,1,2018), cells, new Time(9,15), new Time(9,45),"Chujowa praca", new Color(39, 60, 117).brighter());
+//        Work praca2 = new Work(new Date(2, 1, 2018), cells2, new Time(9,45), new Time(10,30), "Fajniutka praca", new Color(17, 155, 26));        
+//        Work praca3 = new Work(new Date(2,1,2018), cells3, new Time(9,45), new Time(10,30), "Ruchanie łysego psa jak sra, praca to życie", new Color(17, 155, 26));
+//        Work praca4 = new Work(new Date(4,2,2018), cells4, new Time(9,45), new Time(10,30), "Praca jak praca, wymagające gówno", new Color(39, 60, 117).brighter());
+//        workers.add(new Worker("Piotr Filipkowski"));
+//        workers.get(0).putWork(praca.getDate(), praca);
+//        workers.get(0).putWork(praca3.getDate(), praca3);
+//        workers.add(new Worker("Marcin Gałecki"));
+//        workers.get(1).putWork(praca2.getDate(), praca2);
+//        workers.get(1).putWork(praca4.getDate(),praca4);
         this.setPreferredSize(new Dimension(1000,700));
         setComponents();
         this.setupMenuBar();
@@ -119,10 +118,10 @@ public class Frame extends JFrame implements ActionListener{
     }
       
     public void okienko(){
-           List<Worker> tempWorkers = new ArrayList<>();
-           tempWorkers.addAll(workers);
-          WorkersWindow workersWindow = new WorkersWindow(this,tempWorkers);
-          workers = tempWorkers;
+           
+           
+          WorkersWindow workersWindow = new WorkersWindow(this,workers);
+          
           leftPanel.setWorkers(workers);
           leftPanel.refreshTable();
           
@@ -132,7 +131,7 @@ public class Frame extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         
     }
-
+    
     private void setComponents() {
 
         leftPanel = new TablePanel(workers, new Date());
