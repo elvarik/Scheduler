@@ -8,6 +8,7 @@ package frontend;
 import BackEnd.CalendarPlotter;
 import BackEnd.CustomTable;
 import BackEnd.CustomTableModel;
+import BackEnd.Customer;
 import BackEnd.Date;
 import BackEnd.Work;
 import BackEnd.Worker;
@@ -40,13 +41,10 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
-import javax.swing.table.TableColumn;
 import BackEnd.TableColumnAdjuster;
 import BackEnd.Time;
-import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Arrays;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -54,7 +52,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import javax.swing.table.TableCellRenderer;
 /**
  *
  * @author Hardkor
@@ -84,6 +81,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private RightPanel rightPanel;
     private JPanel headerLeft;
     private JScrollPane scrollPane;
+    private Work selectedWork = null;
+    public boolean selectedByRight = false;
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
@@ -309,6 +308,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                             table.setColumnSelectionInterval(colAtPoint, colAtPoint);
                             table.setRowSelectionInterval(rowAtPoint, rowAtPoint);
                         }
+                        rightPanel.setRightEnabled(false);
                     }
                 });
             }
@@ -337,8 +337,15 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
     }
-    public void addWork(Worker worker, List<Point> cells, Color color, String workDescription)
+    public void addWork(Worker worker, Color color, String workDescription, Customer customer)
     {
+        int[] rows = table.getSelectedRows();
+        int col = table.getSelectedColumn();
+        List<Point> cells = new ArrayList<>();
+        for(int tmpRow : rows)
+        {
+            cells.add(new Point(tmpRow,col));
+        }
         String timeString = timeTable.getValueAt(cells.get(0).x, 0).toString();
         timeString = timeString.substring(1, timeString.length());
         Time startTime = new Time(timeString);
@@ -360,9 +367,229 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             }
             Date workDate = new Date(cells.get(0).y+1, currentDate.getMonth(), currentDate.getYear());
             Work newWork = new Work(workDate, cells, startTime, endTime,workDescription,color);
+            newWork.setCustomer(customer);
             tmpWorker.putWork(workDate, newWork);
         }
+        rightPanel.setRightEnabled(false);
         this.refreshWithScroll();
+    }
+    public void editWork(Worker worker, Color color, String workDescription, Customer customer, Time startTime, Time endTime)
+    {
+        int row = table.getSelectedRow();
+        int col = table.getSelectedColumn();
+        Point selected = new Point(row, col);
+        if(dayMode)
+            selected = new Point(row, selectedDay.getDay()-1);
+        if(worker == null && this.selectedWork != null)
+        {
+            
+            Worker tmpWorker = null; 
+            List<Work> workList = null;
+            if(!dayMode)
+            {
+               tmpWorker = workersList.get(workersSelectionBox.getSelectedIndex());
+               workList= tmpWorker.getWorks(new Date(col+1, currentDate.getMonth(), currentDate.getYear()));
+            }
+            else
+            {
+                tmpWorker = workersList.get(col);
+                workList = tmpWorker.getWorks(selectedDay);
+            }
+            Work toRemove = null;
+            Work edited = null;
+            for(Work tmpWork : workList)
+            {
+                List<Point> workCells = tmpWork.getCells();
+                if(workCells.contains(selected))
+                {
+                    int startRow = this.getRowFromTimeTable(startTime);
+                    int endRow = this.getRowFromTimeTable(endTime) -1;
+                    if(startRow == workCells.get(0).x && endRow == workCells.get(workCells.size()-1).x+1)
+                    {
+                        edited = new Work(tmpWork.getDate(), workCells, startTime, endTime, workDescription, color);
+                        edited.setCustomer(customer);
+                        toRemove = tmpWork;
+                    }
+                    else if(startRow < workCells.get(0).x)
+                    {
+                        while(true)
+                        {
+                            Point newCell = new Point(startRow, workCells.get(0).y);
+                            if(workCells.contains(newCell))
+                                break;
+                            else
+                                workCells.add(newCell);
+                            startRow++;
+                        }
+                        workCells.sort((Point p1, Point p2)-> p1.x-p2.x);
+                        
+                    }
+                    else if(startRow > workCells.get(0).x)
+                    {
+                        
+                        Point newCell = new Point(startRow, workCells.get(0).y);
+                        while(!workCells.isEmpty() && !workCells.get(0).equals(newCell))
+                            workCells.remove(0);
+                        
+                    }
+                    if(workCells.isEmpty())
+                    {
+                        Point newCell = new Point(startRow, col);
+                        workCells.add(newCell);
+                        while(true)
+                        {
+                            Point tmpCell = new Point(endRow, workCells.get(0).y);
+                            if(workCells.contains(tmpCell))
+                                break;
+                            else
+                                workCells.add(tmpCell);
+                            endRow--;
+                        }
+                        workCells.sort((Point p1, Point p2)-> p1.x-p2.x);
+                    }
+                    else if(endRow > workCells.get(workCells.size()-1).x)
+                    {
+                        while(true)
+                        {
+                            Point newCell = new Point(endRow, workCells.get(0).y);
+                            if(workCells.contains(newCell))
+                                break;
+                            else
+                                workCells.add(newCell);
+                            endRow--;
+                        }
+                        workCells.sort((Point p1, Point p2)-> p1.x-p2.x);
+                    }
+                    else if(endRow < workCells.get(workCells.size()-1).x)
+                    {
+                        Point newCell = new Point(endRow, workCells.get(0).y);
+                        while(!workCells.get(workCells.size()-1).equals(newCell))
+                            workCells.remove(workCells.size()-1);
+                    }
+                    edited = new Work(tmpWork.getDate(), workCells, startTime, endTime, workDescription, color);
+                    edited.setCustomer(customer);
+                    toRemove = tmpWork;  
+                    workList.remove(toRemove);
+                    workList.add(edited);
+                    break;
+                }
+            }
+            this.refreshWithScroll();
+            
+
+            rightPanel.setRightEnabled(false);
+            rightPanel.setEditMode(false);
+        }
+    }
+    public void deleteWork()
+    {
+        int col = table.getSelectedColumn();
+        int[] rows = table.getSelectedRows();
+        List<Point> selected = new ArrayList<>();
+        boolean multipleDelete = false;
+        for(int tmpRow : rows)
+        {
+            selected.add(new Point(tmpRow,col));
+        }
+        Worker tmpWorker;
+        List<Work> worksOnDay;
+        if(!dayMode)
+        {
+            tmpWorker = workersList.get(selectedItemIndex);
+            worksOnDay = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));;
+        }
+        else
+        {
+            tmpWorker = workersList.get(col);
+            worksOnDay = tmpWorker.getWorks(selectedDay);
+        }
+        List<Work> toDelete = new ArrayList<>();
+        int message = JOptionPane.NO_OPTION;
+        if(worksOnDay != null && !worksOnDay.isEmpty())
+        {
+            for(Work work: worksOnDay)
+            {
+
+                List<Point> workCells = work.getCells();
+                List<Point> tmpWorkCells = null;
+                if(!dayMode)
+                {
+                    if(rows.length>1)
+                    {
+                        
+                        Set<Point> selectedSet = new HashSet<>(selected);
+                        Set<Point> workCellsSet = new HashSet<>(workCells);
+                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                        {
+                            
+                            toDelete.add(work);
+                            multipleDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        if (rows[0] > -1 && workCells.contains(new Point(rows[0],col))) 
+                        {
+                            Object[] options = {"Tak", "Nie"};
+                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                            if(message == JOptionPane.YES_OPTION)
+                                toDelete.add(work);
+                        }
+                    }
+                }
+                else
+                {
+                    tmpWorkCells = new ArrayList<>();
+                    for(Point cell : workCells)
+                    {
+                        tmpWorkCells.add(new Point(cell.x, col));
+                    }
+                    if(rows.length>1)
+                    {
+                        
+                        Set<Point> selectedSet = new HashSet<>(selected);
+                        Set<Point> workCellsSet = new HashSet<>(tmpWorkCells);
+                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
+                        {
+                            
+                            toDelete.add(work);
+                            multipleDelete = true;
+                        }
+                    }
+                    else
+                    {
+                        if (rows[0] > -1 && tmpWorkCells.contains(new Point(rows[0],col))) 
+                        {
+                            Object[] options = {"Tak", "Nie"};
+                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                            if(message == JOptionPane.YES_OPTION)
+                                toDelete.add(work);
+                        }
+                    }
+                }
+            }
+            if(multipleDelete)
+            {
+                Object[] options = {"Tak", "Nie"};
+                message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
+                if(message == JOptionPane.YES_OPTION)
+                {
+                    for(Work work : toDelete)
+                        worksOnDay.remove(work);
+                }
+            }
+            else
+            {
+                for(Work work : toDelete)
+                        worksOnDay.remove(work);
+            }
+            if(message == JOptionPane.YES_OPTION)
+            {
+                refreshWithScroll();
+                rightPanel.setEditMode(false);
+                rightPanel.setRightEnabled(false);
+            }
+        } 
     }
     private void switchModes(MouseEvent e)
     {
@@ -526,112 +753,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             
         }
     }
-    private void deleteWork()
-    {
-        int col = table.getSelectedColumn();
-        int[] rows = table.getSelectedRows();
-        List<Point> selected = new ArrayList<>();
-        boolean multipleDelete = false;
-        for(int tmpRow : rows)
-        {
-            selected.add(new Point(tmpRow,col));
-        }
-        Worker tmpWorker;
-        List<Work> worksOnDay;
-        if(!dayMode)
-        {
-            tmpWorker = workersList.get(selectedItemIndex);
-            worksOnDay = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));;
-        }
-        else
-        {
-            tmpWorker = workersList.get(col);
-            worksOnDay = tmpWorker.getWorks(selectedDay);
-        }
-        List<Work> toDelete = new ArrayList<>();
-        int message = JOptionPane.NO_OPTION;
-        if(worksOnDay != null && !worksOnDay.isEmpty())
-        {
-            for(Work work: worksOnDay)
-            {
-
-                List<Point> workCells = work.getCells();
-                List<Point> tmpWorkCells = null;
-                if(!dayMode)
-                {
-                    if(rows.length>1)
-                    {
-                        
-                        Set<Point> selectedSet = new HashSet<>(selected);
-                        Set<Point> workCellsSet = new HashSet<>(workCells);
-                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
-                        {
-                            
-                            toDelete.add(work);
-                            multipleDelete = true;
-                        }
-                    }
-                    else
-                    {
-                        if (rows[0] > -1 && workCells.contains(new Point(rows[0],col))) 
-                        {
-                            Object[] options = {"Tak", "Nie"};
-                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                            if(message == JOptionPane.YES_OPTION)
-                                toDelete.add(work);
-                        }
-                    }
-                }
-                else
-                {
-                    tmpWorkCells = new ArrayList<>();
-                    for(Point cell : workCells)
-                    {
-                        tmpWorkCells.add(new Point(cell.x, col));
-                    }
-                    if(rows.length>1)
-                    {
-                        
-                        Set<Point> selectedSet = new HashSet<>(selected);
-                        Set<Point> workCellsSet = new HashSet<>(tmpWorkCells);
-                        if(selectedSet.stream().anyMatch(workCellsSet::contains))
-                        {
-                            
-                            toDelete.add(work);
-                            multipleDelete = true;
-                        }
-                    }
-                    else
-                    {
-                        if (rows[0] > -1 && tmpWorkCells.contains(new Point(rows[0],col))) 
-                        {
-                            Object[] options = {"Tak", "Nie"};
-                            message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                            if(message == JOptionPane.YES_OPTION)
-                                toDelete.add(work);
-                        }
-                    }
-                }
-            }
-            if(multipleDelete)
-            {
-                Object[] options = {"Tak", "Nie"};
-                message = JOptionPane.showOptionDialog(this,"Czy jesteś pewien, że chcesz usunąć? Zmiany są nieodwracalne.","Potwierdź",JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,null, options, options[1]);
-                if(message == JOptionPane.YES_OPTION)
-                {
-                    for(Work work : toDelete)
-                        worksOnDay.remove(work);
-                }
-            }
-            else
-            {
-                for(Work work : toDelete)
-                        worksOnDay.remove(work);
-            }
-            if(message == JOptionPane.YES_OPTION)
-                refreshWithScroll();
-        } 
-    }
+    
     private void refreshWithScroll()
     {
         Point scrollPos = scrollPane.getViewport().getViewPosition();
@@ -712,6 +834,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         for(Point cell : workCells)
                         {
                             tmpWorkCells.add(new Point(cell.x, col));
+                            table.setValueAt("", cell.x, col);
                         }
                         table.changeCellColor(tmpWorkCells, work.getColor(), Boolean.TRUE);
                         Point tmpPoint = (Point)work.getCells().get(0);
@@ -795,12 +918,31 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.valueChanged(e);
 //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
+    private Time getTimeFromTable(int row)
+    {
+        String timeString = timeTable.getValueAt(row, 0).toString();
+        timeString = timeString.substring(1, timeString.length());
+        Time startTime = new Time(timeString);
+        return startTime;
+    }
+    private int getRowFromTimeTable(Time time)
+    {
+        String timeString = " "+time.toString();
+        for(int row = 0; row < timeTable.getRowCount(); row++)
+        {
+            String timeFromTable = (String) timeTable.getModel().getValueAt(row, 0);
+            if(timeFromTable.equals(timeString))
+                return row;
+        }
+        return -1;
+    }
     @Override
     public void valueChanged(ListSelectionEvent lse) {
         
         if(!lse.getValueIsAdjusting() && !workersList.isEmpty())
         {
+            selectedWork = null;
+            rightPanel.setEditMode(false);
             this.setWorkCells();
             int[] rows = table.getSelectedRows();
             int col = table.getSelectedColumn();
@@ -811,10 +953,15 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 selected.add(new Point(tmpRow,col));
             }
-            
+            if(!selectedByRight && rows.length > 0)
+            {
+                Time start = this.getTimeFromTable(rows[0]);
+                Time end = this.getTimeFromTable(rows[rows.length-1]+1);
+                rightPanel.setFieldsContent("", "", "", "", "", false,"", start, end);
+            }
             if(!dayMode)
             {
-                rightPanel.setSelectedCells(selected);
+                
                 selectedItemIndex = workersSelectionBox.getSelectedIndex();
                 Worker tmpWorker = workersList.get(selectedItemIndex);
                 List<Work> works = tmpWorker.getWorks(new Date(col+1,currentDate.getMonth(), currentDate.getYear()));
@@ -831,20 +978,19 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                             Set<Point> workCellsSet = new HashSet<>(tmpPoints);
                             if(selectedSet.stream().anyMatch(workCellsSet::contains))
                             {
-//                                table.clearSelection();
-//                                return;
                                 table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
-                                selectedWorks = true;
-                                
+                                selectedWorks = true;  
                             }
                             
                         }
                         else if(rows.length > 0 && tmpPoints.contains(new Point(rows[0],col)))
                         {
+                            Customer customer = tmpWork.getCustomer();
                             selectedWork = true;
                             table.changeCellColor(tmpPoints, tmpWork.getColor().brighter(), Boolean.TRUE);
-                            
-
+                            rightPanel.setFieldsContent(tmpWork);
+                            this.selectedWork = tmpWork;
+                            break;
                         }
                         
                     }
@@ -854,9 +1000,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             {
                 Worker selectedWorker = workersList.get(col);
                 List<Work> works = selectedWorker.getWorks(selectedDay);
-                
-                rightPanel.setSelectedCells(selected);
-                
+
                 if(works != null && !works.isEmpty())
                 {
                     for(Work tmpWork : works)
@@ -880,20 +1024,87 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         }
                         else if(rows.length > 0 && tmpWorkCells.contains(new Point(rows[0],col)))
                         {
+                            Customer customer = tmpWork.getCustomer();
                             table.changeCellColor(tmpWorkCells, tmpWork.getColor().brighter(), Boolean.TRUE);
                             selectedWork= true;
+                            rightPanel.setFieldsContent(tmpWork);
                             table.repaint();
+                            this.selectedWork = tmpWork;
+                            break;
                         }
                     }
                 }
             }
             rightPanel.setRightEnabled(!(selectedWorks));
+            rightPanel.setEditMode(selectedWork);
             deleteMenuButton.setEnabled(selectedWork || selectedWorks);
             colorsMenu.setEnabled(selectedWork);
+            
         }
         
     }
-
+    public boolean incSelectionTop()
+    {
+        int [] rows = table.getSelectedRows();
+        int col = table.getSelectedColumn();
+        if(rows[0] >0)
+        {
+            table.setColumnSelectionInterval(col, col);
+            table.setRowSelectionInterval(rows[0]-1, rows[rows.length-1]);
+            return true;
+        }
+        else
+            return false;
+    }
+    public boolean decSelectionTop()
+    {
+        int [] rows = table.getSelectedRows();
+        int col = table.getSelectedColumn();
+        
+        table.setColumnSelectionInterval(col, col);
+        table.setRowSelectionInterval(rows[0]+1, rows[rows.length-1]);
+        return true; 
+    }
+    public boolean incSelectionBot()
+    {
+        int [] rows = table.getSelectedRows();
+        int col = table.getSelectedColumn();
+        table.setColumnSelectionInterval(col, col);
+        table.setRowSelectionInterval(rows[0], rows[rows.length-1]+1);
+        return true;
+    }
+    public boolean decSelectionBot()
+    {
+        int [] rows = table.getSelectedRows();
+        int col = table.getSelectedColumn();
+        table.setColumnSelectionInterval(col, col);
+        table.setRowSelectionInterval(rows[0], rows[rows.length-1]-1);
+        return true;
+    }
+    public void assistRowSelection(int startRow, int endRow, int col)
+    {
+        Runnable doAssist = new Runnable(){
+            @Override
+            public void run() {
+                table.setColumnSelectionInterval(col, col);
+                table.setRowSelectionInterval(startRow, endRow);
+            }
+            
+        };
+        SwingUtilities.invokeLater(doAssist);
+    }
+    public void setSelection(Time start, Time end)
+    {
+        int col = table.getSelectedColumn();
+        int startRow = this.getRowFromTimeTable(start);
+        int endRow = this.getRowFromTimeTable(end)-1;
+        if(startRow != -1 && endRow != -1)
+        {
+            this.selectedByRight = true;
+            this.assistRowSelection(startRow, endRow, col);
+        }
+    }
+            
     @Override
     public void keyTyped(KeyEvent ke) {
         
@@ -908,4 +1119,5 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     @Override
     public void keyReleased(KeyEvent ke) {
     }
+
 }

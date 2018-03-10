@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package scheduler;
+import BackEnd.Time;
 import BackEnd.Worker;
 import frontend.Frame;
 import java.awt.event.WindowEvent;
@@ -28,6 +29,7 @@ public class Scheduler{
     public static List<Worker> workers=new ArrayList<>();
     public static void main(String[] args) throws FileNotFoundException, IOException {
       //próba mikrofonu
+        
         try {
          FileInputStream fileIn = new FileInputStream("employee.ser");
          ObjectInputStream in = new ObjectInputStream(fileIn);
@@ -36,8 +38,8 @@ public class Scheduler{
          in.close();
          fileIn.close();
       } catch (IOException i) {
-         i.printStackTrace();
-         return;
+         System.out.println("Nie znaleziono pliku z zapisem");
+         
       } catch (ClassNotFoundException c) {
          System.out.println("Employee class not found");
          c.printStackTrace();

@@ -5,6 +5,9 @@
  */
 package frontend;
 
+import BackEnd.Customer;
+import BackEnd.Time;
+import BackEnd.Work;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -27,6 +30,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
@@ -57,16 +62,18 @@ public class RightPanel extends JPanel implements ActionListener {
     private JPanel medium;
     private JLabel emerge=new JLabel("");
     private JButton addButton=new JButton("Dodaj zlecenie");
+    private JButton deleteButton = new JButton("Usuń zlecenie");
     private TablePanel tablePanel;
-    private List<Point> selectedCells;
-    private TimeBoxHejHejHej starttimebox=new TimeBoxHejHejHej();
-    private TimeBoxHejHejHej endtimebox=new TimeBoxHejHejHej();
+    private TimeBoxHejHejHej startTimeBox=new TimeBoxHejHejHej();
+    private TimeBoxHejHejHej endTimeBox=new TimeBoxHejHejHej();
      private JLabel cardPaidLabel=new JLabel("Czy płatne kartą:");
     private JRadioButton cardPaidYes = new JRadioButton("Tak");
     private JRadioButton cardPaidNo = new JRadioButton("Nie");
     private JPanel cardPanel= new JPanel(new GridLayout(0,2,0,0));
     private ButtonGroup cardPaidGroup=new ButtonGroup();
-    
+    private Color selectedWorkColor = null;
+    private boolean editMode = false;
+    private JPanel buttonWrapper;
     RightPanel(){
         super(new BorderLayout());
         
@@ -89,8 +96,8 @@ public class RightPanel extends JPanel implements ActionListener {
         cardPaidGroup.add(cardPaidNo);
         centerPanel.setBackground(this.getBackground());
         bottom.setBackground(this.getBackground());
-        starttimebox.setBackground(this.getBackground());
-        endtimebox.setBackground(this.getBackground());
+        startTimeBox.setBackground(this.getBackground());
+        endTimeBox.setBackground(this.getBackground());
         cardPaidYes.setBackground(this.getBackground());
         cardPaidNo.setBackground(this.getBackground());
         cardPaidYes.setForeground(Color.WHITE);
@@ -128,9 +135,9 @@ public class RightPanel extends JPanel implements ActionListener {
        
         
         medium.add(startTimeLabel);
-        medium.add(starttimebox);
+        medium.add(startTimeBox);
         medium.add(endTimeLabel);
-        medium.add(endtimebox);
+        medium.add(endTimeBox);
         
         bottom.add(annotationsLabel);
         annotations.setFont(dogName.getFont());
@@ -154,15 +161,28 @@ public class RightPanel extends JPanel implements ActionListener {
         
         this.add(header, BorderLayout.PAGE_START);
         this.add(gridWrapPanel, BorderLayout.CENTER);
-        JPanel buttonWrapper=new JPanel();
+        buttonWrapper = new JPanel();
         buttonWrapper.setBackground(this.getBackground());
         addButton.setBackground(this.getBackground());
         buttonWrapper.setBorder(new EmptyBorder(10,10,20,10));
         buttonWrapper.add(addButton);
-        
+        buttonWrapper.add(deleteButton);
+        deleteButton.setVisible(false);
+        deleteButton.addActionListener(this);
         this.add(buttonWrapper, BorderLayout.PAGE_END);
         setRightEnabled(false);
         gridWrapPanel.setBackground(this.getBackground());
+        
+        this.startTimeBox.up.addActionListener(this);
+        this.startTimeBox.down.addActionListener(this);
+        this.endTimeBox.up.addActionListener(this);
+        this.endTimeBox.down.addActionListener(this);
+        
+        deleteButton.setBackground(this.getBackground());
+        
+        
+        
+        
     }
     
     public void setOppositePanel(TablePanel tablePanel)
@@ -177,14 +197,21 @@ public class RightPanel extends JPanel implements ActionListener {
             }
         }
         annotations.setEnabled(check);
-        starttimebox.hours.setEnabled(check);
-        starttimebox.minutes.setEnabled(check);
-        endtimebox.hours.setEnabled(check);
-        endtimebox.minutes.setEnabled(check);
+        startTimeBox.hours.setEnabled(check);
+        startTimeBox.minutes.setEnabled(check);
+        endTimeBox.hours.setEnabled(check);
+        endTimeBox.minutes.setEnabled(check);
         cardPaidYes.setEnabled(check);
         cardPaidNo.setEnabled(check);
         addButton.setEnabled(check);
-        }
+        startTimeBox.setEnabled(check);
+        endTimeBox.setEnabled(check);
+        deleteButton.setEnabled(check);
+        if(this.endTimeBox.hours.getText().equals("19") && this.endTimeBox.minutes.getText().equals("00"))
+                this.endTimeBox.up.setEnabled(false);
+        if(this.startTimeBox.hours.getText().equals("9") && this.startTimeBox.minutes.getText().equals("00"))
+                this.startTimeBox.down.setEnabled(false);
+    }
     
     public boolean check(){
         if (!(phoneNo.getText().matches("\\d+") ||phoneNo.getText().matches(""))){
@@ -194,25 +221,148 @@ public class RightPanel extends JPanel implements ActionListener {
         return true;
 
     }
-    public void setSelectedCells(List<Point> cells)
-    {
-        this.selectedCells = cells;
 
+    public void setFieldsContent(String name,String dogName, String dogRace, String phoneNumber,String price, boolean payedByCard,String annotations, Time startTime, Time endTime)
+    {
+        this.clientName.setText(name);
+        this.dogName.setText(dogName);
+        this.race.setText(dogRace);
+        this.phoneNo.setText(phoneNumber);
+        this.price.setText(price);
+        if(payedByCard) 
+            this.cardPaidYes.setSelected(true);
+        else
+            this.cardPaidNo.setSelected(true);
+        this.annotations.setText(annotations);
+        this.startTimeBox.hours.setText(Integer.toString(startTime.getHour()));
+        if(startTime.getMinute() == 0)
+            this.startTimeBox.minutes.setText("00");
+        else
+            this.startTimeBox.minutes.setText(Integer.toString(startTime.getMinute()));
+        this.endTimeBox.hours.setText(Integer.toString(endTime.getHour()));
+        if(endTime.getMinute() == 0)
+            this.endTimeBox.minutes.setText("00");
+        else
+            this.endTimeBox.minutes.setText(Integer.toString(endTime.getMinute()));
+    }
+    public void setFieldsContent(Work work)
+    {
+        Customer customer = work.getCustomer();
+        Time startTime = work.getStartTime();
+        Time endTime = work.getEndTime();
+        this.clientName.setText(customer.getName());
+        this.dogName.setText(customer.getDogName());
+        this.race.setText(customer.getDogRace());
+        this.phoneNo.setText(customer.getPhoneNumber());
+        this.price.setText(customer.getPrice());
+        if(customer.isPayedByCard()) 
+            this.cardPaidYes.setSelected(true);
+        else
+            this.cardPaidNo.setSelected(true);
+        this.annotations.setText(work.getWorkDescription());
+        this.startTimeBox.hours.setText(Integer.toString(startTime.getHour()));
+        if(startTime.getMinute() == 0)
+            this.startTimeBox.minutes.setText("00");
+        else
+            this.startTimeBox.minutes.setText(Integer.toString(startTime.getMinute()));
+        this.endTimeBox.hours.setText(Integer.toString(endTime.getHour()));
+        if(endTime.getMinute() == 0)
+            this.endTimeBox.minutes.setText("00");
+        else
+            this.endTimeBox.minutes.setText(Integer.toString(endTime.getMinute()));
+        this.selectedWorkColor = work.getColor();
+    }
+    public void setEditMode(boolean editMode)
+    {
+        this.editMode = editMode;
+        if(editMode)
+        {
+            addButton.setText("Edytuj zlecenie");
+            
+            deleteButton.setVisible(true);
+        }
+        else
+        {
+            addButton.setText("Dodaj zlecenie");
+            if(buttonWrapper.getComponentCount() > 1)
+            {
+                deleteButton.setVisible(false);
+            }
+        }
     }
     @Override
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-                if(source==addButton){
-                    if(check()==true){
-                        this.emerge.setText("W porzo mordo");
-                    }
-                    else{
-                        this.emerge.setText("Numer telefonu zawiera litery");
-                    }
-                    if(selectedCells != null)
-                    {
-                        tablePanel.addWork(null, selectedCells, header.getBackground(), annotations.getText());
-                    }
-                }
+        if(source==addButton){
+//            if(check()==true){
+//                this.emerge.setText("W porzo mordo");
+//            }
+//            else{
+//                this.emerge.setText("Numer telefonu zawiera litery");
+//            }
+            if(editMode)
+            {
+                Customer customer = new Customer(clientName.getText(), dogName.getText(), race.getText(), phoneNo.getText(),price.getText() ,cardPaidYes.isSelected());
+                tablePanel.editWork(null, selectedWorkColor, annotations.getText(), customer, this.startTimeBox.convertToTime(), this.endTimeBox.convertToTime());
+            }
+            else
+            {
+                Customer customer = new Customer(clientName.getText(), dogName.getText(), race.getText(), phoneNo.getText(),price.getText() ,cardPaidYes.isSelected());
+                tablePanel.addWork(null, header.getBackground(), annotations.getText(), customer);
+            }
+        }
+        if(source == this.startTimeBox.down)
+        {
+            
+            if(editMode)
+                this.startTimeBox.decMinute();
+            else
+                tablePanel.incSelectionTop();
+                //this.startTimeBox.decMinute();
+            if(this.startTimeBox.hours.getText().equals("9") && this.startTimeBox.minutes.getText().equals("00"))
+                this.startTimeBox.down.setEnabled(false);
+            else
+                this.startTimeBox.down.setEnabled(true);
+        }
+        else if(source == this.startTimeBox.up)
+        {
+            if(editMode)
+                this.startTimeBox.incMinute();
+            else
+                tablePanel.decSelectionTop();
+                //this.startTimeBox.incMinute();
+            if(this.startTimeBox.hours.getText().equals("9") && this.startTimeBox.minutes.getText().equals("00"))
+                this.startTimeBox.down.setEnabled(false);
+            else
+                this.startTimeBox.down.setEnabled(true);
+        }
+        else if(source == this.endTimeBox.up)
+        {
+            if(editMode)
+                this.endTimeBox.decMinute();
+            else
+                tablePanel.incSelectionBot();
+            if(this.endTimeBox.hours.getText().equals("19") && this.endTimeBox.minutes.getText().equals("00"))
+                this.endTimeBox.up.setEnabled(false);
+            else
+                this.endTimeBox.up.setEnabled(true);
+            
+        }
+        else if(source == this.endTimeBox.down)
+        {
+            if(editMode)
+                this.endTimeBox.incMinute();
+            else
+            tablePanel.decSelectionBot();
+            
+            if(this.endTimeBox.hours.getText().equals("19") && this.endTimeBox.minutes.getText().equals("00"))
+                this.endTimeBox.up.setEnabled(false);
+            else
+                this.endTimeBox.up.setEnabled(true);
+        }
+        else if(source == deleteButton)
+        {
+            tablePanel.deleteWork();
+        }
     }
 }

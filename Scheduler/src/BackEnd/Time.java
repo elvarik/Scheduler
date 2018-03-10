@@ -29,8 +29,45 @@ public class Time implements Comparator<Time>, Comparable<Time>, Serializable{
         this.minute = minute;
     }
 
+    public int getHour() {
+        return hour;
+    }
+
+    public int getMinute() {
+        return minute;
+    }
+    public void add(int value)
+    {
+        int tmpMinute = this.minute + value;
+        if(tmpMinute >=60)
+        {
+            int rest = tmpMinute - 60;
+            this.hour++;
+            if(hour == 25)
+                hour = 0;
+            this.minute = rest;
+        }
+        else
+            this.minute = tmpMinute;
+    }
+    public void substract(int value)
+    {
+        int tmpMinute = this.minute - value;
+        if(tmpMinute < 0)
+        {
+            int rest = tmpMinute + 60;
+            this.hour--;
+            if(hour == 0)
+                this.hour = 24;
+            this.minute = rest;
+        }
+        else
+            this.minute = tmpMinute;
+    }
     @Override
     public String toString() {
+        if(minute == 0)
+            return hour + ":" + "00";
         return hour + ":" + minute;
     }
 
