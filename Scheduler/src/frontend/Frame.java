@@ -123,7 +123,7 @@ public class Frame extends JFrame implements ActionListener{
           WorkersWindow workersWindow = new WorkersWindow(this,workers);
           
           leftPanel.setWorkers(workers);
-          leftPanel.refreshTable();
+          leftPanel.refreshWithScroll();
           
     }
    

@@ -6,10 +6,12 @@
 package frontend;
 
 import BackEnd.CalendarPlotter;
+import BackEnd.ColumnMouseListener;
 import BackEnd.CustomTable;
 import BackEnd.CustomTableModel;
 import BackEnd.Customer;
 import BackEnd.Date;
+import BackEnd.HeaderCellRenderer;
 import BackEnd.Work;
 import BackEnd.Worker;
 import java.awt.BorderLayout;
@@ -43,15 +45,20 @@ import javax.swing.event.TableColumnModelEvent;
 import javax.swing.event.TableColumnModelListener;
 import BackEnd.TableColumnAdjuster;
 import BackEnd.Time;
+import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseListener;
+import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
+import javax.swing.table.DefaultTableCellRenderer;
 /**
  *
  * @author Hardkor
@@ -83,6 +90,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private JScrollPane scrollPane;
     private Work selectedWork = null;
     public boolean selectedByRight = false;
+    private Date dayToday;
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
@@ -144,10 +152,23 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         //headerCenter.add(right);
         header.add(headerCenter, BorderLayout.CENTER);
         dateLabel.setFont(dateLabel.getFont().deriveFont(18.f));
+        dayToday = new Date(currentDate);
         setTable(currentDate, workersList);
         deleteMenuButton.setEnabled(false);
-            colorsMenu.setEnabled(false);
-
+        colorsMenu.setEnabled(false);
+        
+        this.scrollToDay(currentDate.getDay());
+        //this.setCurrentDayHeader();
+        
+    }
+    public void setCurrentDayHeader()
+    {
+        if(dayToday.getMonth() == currentDate.getMonth() && dayToday.getYear() == currentDate.getYear())
+        {
+            table.getColumnModel().getColumn(dayToday.getDay()-1).setHeaderRenderer(new HeaderCellRenderer(header.getBackground()));
+            table.getTableHeader().addMouseListener(new ColumnMouseListener(table,header.getBackground(),new Color(43, 50, 60).brighter(), dayToday.getDay()-1));
+            table.getTableHeader().addMouseMotionListener(new ColumnMouseListener(table,header.getBackground(),new Color(43, 50, 60).brighter(), dayToday.getDay()-1));
+        }
     }
     public void refreshTable()
     {
@@ -157,6 +178,25 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.setTable(this.currentDate, workersList);
         this.revalidate();
         this.repaint();
+        
+    }
+    public void refreshWithScroll()
+    {
+        Point scrollPos = scrollPane.getViewport().getViewPosition();
+        
+        this.refreshTable();
+        scrollPane.getViewport().setViewPosition(scrollPos);
+    }
+    private void scrollToDay(int day)
+    {
+        int scrollPosX = 0;
+        for(int i = 0; i < day-1; i++)
+        {
+            scrollPosX +=table.getColumnModel().getColumn(i).getWidth();
+        }
+        
+        Point scrollPos = new Point(scrollPosX, 0);
+        scrollPane.getViewport().setViewPosition(scrollPos);
     }
     public void setOppositePanel(RightPanel rightPanel)
     {
@@ -321,7 +361,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
 
             @Override
             public void popupMenuCanceled(PopupMenuEvent e) {
-                // TODO Auto-generated method stub
+                rightPanel.setRightEnabled(true);
 
             }
         });
@@ -336,6 +376,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         table.addKeyListener(this);
         this.add(timeScrollPane, BorderLayout.LINE_START);
         this.add(scrollPane, BorderLayout.CENTER);
+        if(!dayMode)
+            this.setCurrentDayHeader();
     }
     public void addWork(Worker worker, Color color, String workDescription, Customer customer)
     {
@@ -613,6 +655,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             header.add(headerCenter, BorderLayout.CENTER);
             selectedItemIndex = col;
             currentDate = selectedDay;
+            
         }
         dayMode = !dayMode;
 
@@ -621,6 +664,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         this.setWorkCells();
         revalidate();
         repaint();
+        if(!dayMode)
+            this.scrollToDay(currentDate.getDay());
     }
     @Override
     public void actionPerformed(ActionEvent ae) {
@@ -691,6 +736,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 this.setTable(new Date(), workersList);
                 this.revalidate();
                 this.repaint();
+                this.scrollToDay(currentDate.getDay());
             }
             else
             {
@@ -699,6 +745,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 this.setTable(new Date(), workersList);
                 this.revalidate();
                 this.repaint();
+                
             }
         }
         else if(source == deleteMenuButton)
@@ -754,12 +801,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         }
     }
     
-    private void refreshWithScroll()
-    {
-        Point scrollPos = scrollPane.getViewport().getViewPosition();
-        this.refreshTable();
-        scrollPane.getViewport().setViewPosition(scrollPos);
-    }
+    
     public void changeCellColor(int row, int col, Color color, Boolean first)
     {
         table.changeCellColor(row, col, color,first);
@@ -807,7 +849,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                            }
                            Point tmpPoint = (Point)tmpWork.getCells().get(0);
                            table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
-                           List<String> tmpSubstrings = substrings(tmpWork.getWorkDescription(), tmpPoint.y, tmpWork.getCells().size());
+                           String stringValue = tmpWork.getCustomer().getName() + " \n " + tmpWork.getCustomer().getDogName() + " - " + tmpWork.getCustomer().getDogRace();
+                           List<String> tmpSubstrings = substrings(stringValue, tmpPoint.y, tmpWork.getCells().size());
                            int row = tmpPoint.x;
                            for(String substring : tmpSubstrings)
                            {
@@ -856,12 +899,12 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private List<String> substrings(String source, int column, int cellsAmount)
     {
         List<String> strings = new ArrayList<>();
-        int width = table.getColumnModel().getColumn(column).getWidth()/8;
-        if(width > source.length())
-        {
-            strings.add(" " + source);
-            return strings;
-        }
+        int width = table.getColumnModel().getColumn(column).getWidth()/5 + 1;
+//        if(width > source.length())
+//        {
+//            strings.add(" " + source);
+//            return strings;
+//        }
         String line = " ";
         String [] words = source.split(" ");
         
@@ -869,8 +912,15 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         {
             if(strings.size() < cellsAmount -1)
             {
-                if(line.length() < width)
-                line+=word + " ";
+                String tmp = line+word + " ";
+                if(word.contains("\n"))
+                {
+                    strings.add(line);
+                    //strings.add("");
+                    line=" ";
+                }
+                else if(tmp.length() < width)
+                    line = tmp;
                 else
                 {
                     strings.add(line);
