@@ -25,12 +25,15 @@ public class ColumnMouseListener implements MouseMotionListener, MouseListener{
     private Color background;
     private Color border;
     private int column;
+    private HeaderCellRenderer unSelected, selected;
     public ColumnMouseListener(CustomTable table, Color background, Color border, int column)
     {
         this.table = table;
         this.background = background;
         this.border = border;
         this.column = column;
+        this.unSelected = new HeaderCellRenderer(background);
+        this.selected = new HeaderCellRenderer(background.brighter());
     }
     @Override
     public void mouseClicked(MouseEvent me) {
@@ -51,18 +54,14 @@ public class ColumnMouseListener implements MouseMotionListener, MouseListener{
     public void mouseEntered(MouseEvent me) {
         int col = table.columnAtPoint(me.getPoint());
         if(col == column)
-            table.getColumnModel().getColumn(column).setHeaderRenderer(new HeaderCellRenderer(background.brighter()));
+            table.getColumnModel().getColumn(column).setHeaderRenderer(selected);
         else
-            table.getColumnModel().getColumn(column).setHeaderRenderer(new HeaderCellRenderer(background));
+            table.getColumnModel().getColumn(column).setHeaderRenderer(unSelected);
     }
 
     @Override
     public void mouseExited(MouseEvent me) {
-        int col = table.columnAtPoint(me.getPoint());
-        if(col == column)
-            table.getColumnModel().getColumn(column).setHeaderRenderer(new HeaderCellRenderer(background));
-        else
-            table.getColumnModel().getColumn(column).setHeaderRenderer(new HeaderCellRenderer(background));
+        table.getColumnModel().getColumn(column).setHeaderRenderer(unSelected);
     }
 
     @Override
@@ -74,9 +73,9 @@ public class ColumnMouseListener implements MouseMotionListener, MouseListener{
     public void mouseMoved(MouseEvent me) {
         int col = table.getTableHeader().columnAtPoint(me.getPoint());
         if(col == column)
-            table.getColumnModel().getColumn(column).setHeaderRenderer(new HeaderCellRenderer(background.brighter()));
+            table.getColumnModel().getColumn(column).setHeaderRenderer(selected);
         else
-            table.getColumnModel().getColumn(column).setHeaderRenderer(new HeaderCellRenderer(background));
+            table.getColumnModel().getColumn(column).setHeaderRenderer(unSelected);
     }
     
 }
