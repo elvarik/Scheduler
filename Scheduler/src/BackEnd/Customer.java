@@ -6,6 +6,9 @@
 package BackEnd;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -14,45 +17,74 @@ import java.io.Serializable;
  */
 public class Customer implements Serializable{
     private String name;
-    private String dogName;
-    private String dogRace;
     private String phoneNumber;
-    private boolean payedByCard;
-    private String price;
-    public Customer(String name,String dogName, String dogRace, String phoneNumber,String price, boolean payedByCard)
+    private List <Work> works;
+    public Customer(String name, String phoneNumber)
     {
         this.name = name;
-        this.dogName= dogName;
-        this.dogRace = dogRace;
         this.phoneNumber = phoneNumber;
-        this.payedByCard = payedByCard;
-        this.price = price;
+        works = new ArrayList<>();
     }
 
     public String getName() {
         return name;
     }
-
-    public String getDogName() {
-        return dogName;
+    public void addWork(Work work)
+    {
+        works.add(work);
     }
-
-    public String getDogRace() {
-        return dogRace;
+    public void removeWork(Work work)
+    {
+        works.remove(work);
     }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public boolean isPayedByCard() {
-        return payedByCard;
+    public List<Work> getWorks() {
+        return works;
     }
 
-    public String getPrice() {
-        return price;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setWorks(List<Work> works) {
+        this.works = works;
     }
     
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + Objects.hashCode(this.name);
+        hash = 29 * hash + Objects.hashCode(this.phoneNumber);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Customer other = (Customer) obj;
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        if (!Objects.equals(this.phoneNumber, other.phoneNumber)) {
+            return false;
+        }
+        return true;
+    }
     
     
 }

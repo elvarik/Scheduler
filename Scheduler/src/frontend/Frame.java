@@ -53,7 +53,7 @@ public class Frame extends JFrame implements ActionListener{
         this.workers=workers;
         Toolkit kit = Toolkit.getDefaultToolkit();
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        right= new RightPanel();
+        
 //        List <Point> cells = new ArrayList<>();
 //        List <Point> cells2 = new ArrayList<>();
 //        List <Point> cells3 = new ArrayList<>();
@@ -135,8 +135,9 @@ public class Frame extends JFrame implements ActionListener{
     private void setComponents() {
 
         leftPanel = new TablePanel(workers, new Date());
+        right= new RightPanel(leftPanel);
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftPanel, right);
-        right.setOppositePanel(leftPanel);
+        
         leftPanel.setOppositePanel(right);
         //splitPane.setOneTouchExpandable(true);
         splitPane.setDividerLocation(600);

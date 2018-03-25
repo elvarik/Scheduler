@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -45,7 +46,8 @@ public class RightPanel extends JPanel implements ActionListener {
     private final JLabel raceLabel = new JLabel("Rasa psa:");
     private JTextField price= new JTextField();
     private final JLabel priceLabel = new JLabel("Cena:");
-    private JTextField phoneNo=new JTextField();
+    //private AutoTextField phoneNo;
+    private AutoComboBox phoneNo;
     private final JLabel phoneNoLabel = new JLabel("Numer telefonu:");
     private JTextField dogName= new JTextField();
     private final JLabel dogNameLabel = new JLabel("Imię psa:");
@@ -74,9 +76,13 @@ public class RightPanel extends JPanel implements ActionListener {
     private Color selectedWorkColor = null;
     private boolean editMode = false;
     private JPanel buttonWrapper;
-    RightPanel(){
+    RightPanel(TablePanel oppositePanel){
         super(new BorderLayout());
-        
+        this.setOppositePanel(oppositePanel);
+        Map <String, Customer> customersMap = tablePanel.getCustomers();
+        List<String> phoneNumbers = new ArrayList<String>(customersMap.keySet());
+        phoneNo = new AutoComboBox(phoneNumbers);
+        //phoneNo = new AutoTextField(phoneNumbers, phoneNoAutoBox);
         centerPanel = new JPanel(new GridLayout(0,2,-40,10));
         medium = new JPanel(new GridLayout(0,2,-40,10));
         bottom = new JPanel(new GridLayout(0,2,-40,10));
@@ -112,9 +118,9 @@ public class RightPanel extends JPanel implements ActionListener {
         priceLabel.setForeground(Color.WHITE);
         cardPaidLabel.setForeground(Color.WHITE);
         centerPanel.add(phoneNoLabel);
-
         centerPanel.add(phoneNo);
-        
+        //centerPanel.add(phoneNoAutoBox);
+        phoneNo.addActionListener(this);
         centerPanel.add(clientNameLabel);
 
         centerPanel.add(clientName);
@@ -182,14 +188,16 @@ public class RightPanel extends JPanel implements ActionListener {
         
         
         
-        
     }
     
     public void setOppositePanel(TablePanel tablePanel)
     {
         this.tablePanel = tablePanel;
     }
-    
+    public void setPhoneContent(List<String> phoneNumbers)
+    {
+        this.phoneNo.setDataList(phoneNumbers);
+    }
     public void setRightEnabled(boolean check){
         for(Component x : centerPanel.getComponents() ){
             if(!(x instanceof JLabel)){
@@ -213,14 +221,14 @@ public class RightPanel extends JPanel implements ActionListener {
                 this.startTimeBox.down.setEnabled(false);
     }
     
-    public boolean check(){
-        if (!(phoneNo.getText().matches("\\d+") ||phoneNo.getText().matches(""))){
-
-            return false;
-        }
-        return true;
-
-    }
+//    public boolean check(){
+//        if (!(phoneNo.getText().matches("\\d+") ||phoneNo.getText().matches(""))){
+//
+//            return false;
+//        }
+//        return true;
+//
+//    }
 
     public void setFieldsContent(String name,String dogName, String dogRace, String phoneNumber,String price, boolean payedByCard,String annotations, Time startTime, Time endTime)
     {
@@ -251,11 +259,11 @@ public class RightPanel extends JPanel implements ActionListener {
         Time startTime = work.getStartTime();
         Time endTime = work.getEndTime();
         this.clientName.setText(customer.getName());
-        this.dogName.setText(customer.getDogName());
-        this.race.setText(customer.getDogRace());
+        this.dogName.setText(work.getDogName());
+        this.race.setText(work.getDogRace());
         this.phoneNo.setText(customer.getPhoneNumber());
-        this.price.setText(customer.getPrice());
-        if(customer.isPayedByCard()) 
+        this.price.setText(work.getPrice());
+        if(work.isPayedByCard()) 
             this.cardPaidYes.setSelected(true);
         else
             this.cardPaidNo.setSelected(true);
@@ -302,13 +310,16 @@ public class RightPanel extends JPanel implements ActionListener {
 //            }
             if(editMode)
             {
-                Customer customer = new Customer(clientName.getText(), dogName.getText(), race.getText(), phoneNo.getText(),price.getText() ,cardPaidYes.isSelected());
-                tablePanel.editWork(null, selectedWorkColor, annotations.getText(), customer, this.startTimeBox.convertToTime(), this.endTimeBox.convertToTime());
+                Customer customer = new Customer(clientName.getText(),phoneNo.getText());
+                tablePanel.editWork(null, selectedWorkColor, annotations.getText(), customer, 
+                        this.startTimeBox.convertToTime(), this.endTimeBox.convertToTime(), this.dogName.getText(), 
+                        this.race.getText(), this.cardPaidYes.isSelected(), this.price.getText());
             }
             else
             {
-                Customer customer = new Customer(clientName.getText(), dogName.getText(), race.getText(), phoneNo.getText(),price.getText() ,cardPaidYes.isSelected());
-                tablePanel.addWork(null, header.getBackground(), annotations.getText(), customer);
+                Customer customer = new Customer(clientName.getText(),phoneNo.getText());
+                tablePanel.addWork(null, header.getBackground(), annotations.getText(), customer, this.dogName.getText(), 
+                        this.race.getText(), this.cardPaidYes.isSelected(), this.price.getText());
             }
         }
         if(source == this.startTimeBox.down)
@@ -363,6 +374,26 @@ public class RightPanel extends JPanel implements ActionListener {
         else if(source == deleteButton)
         {
             tablePanel.deleteWork();
+        }
+        else if(source == phoneNo)
+        {
+            Map <String,Customer> customers = tablePanel.getCustomers();
+            if(customers.get(phoneNo.getText()) != null)
+            {
+                this.clientName.setText(customers.get(phoneNo.getText()).getName());
+                if(customers.get(phoneNo.getText()).getWorks().size() > 0)
+                {
+                    Work work = customers.get(phoneNo.getText()).getWorks().get(customers.get(phoneNo.getText()).getWorks().size()-1);
+                    
+                    this.dogName.setText(work.getDogName());
+                    this.race.setText(work.getDogRace());
+                    this.price.setText(work.getPrice());
+                    if(work.isPayedByCard()) 
+                        this.cardPaidYes.setSelected(true);
+                    else
+                        this.cardPaidNo.setSelected(true);
+                }
+            }
         }
     }
 }

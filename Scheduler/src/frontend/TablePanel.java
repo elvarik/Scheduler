@@ -49,6 +49,7 @@ import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.util.HashMap;
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -91,10 +92,11 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
     private Work selectedWork = null;
     public boolean selectedByRight = false;
     private Date dayToday;
+    private Map<String, Customer> customers;
     public TablePanel(List <Worker> workersList, Date date)
     {
         super(new BorderLayout());
-        
+        customers = new HashMap<>();
         popupMenu = new JPopupMenu();
         popupMenu.setPreferredSize(new Dimension(100,50));
         colorsMenu = new JMenu("Kolor");
@@ -159,6 +161,19 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         
         this.scrollToDay(currentDate.getDay());
         //this.setCurrentDayHeader();
+        for(Worker worker : workersList)
+        {
+            Date [] workDates = worker.getWorksDates();
+            for(Date dateKey : workDates)
+            {
+                List <Work> works = worker.getWorks(dateKey);
+                for(Work tmpWork : works)
+                {
+                    customers.put(tmpWork.getCustomer().getPhoneNumber(), tmpWork.getCustomer());
+                }
+            }
+        }
+        
         
     }
     public void setCurrentDayHeader()
@@ -379,7 +394,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
         if(!dayMode)
             this.setCurrentDayHeader();
     }
-    public void addWork(Worker worker, Color color, String workDescription, Customer customer)
+    public void addWork(Worker worker, Color color, String workDescription, Customer customer, String dogName, String dogRace, boolean payedByCard, String price)
     {
         int[] rows = table.getSelectedRows();
         int col = table.getSelectedColumn();
@@ -407,15 +422,28 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     tmpCells.add(new Point(cell.x, selectedDay.getDay()-1));
                 cells = tmpCells;
             }
+            
             Date workDate = new Date(cells.get(0).y+1, currentDate.getMonth(), currentDate.getYear());
-            Work newWork = new Work(workDate, cells, startTime, endTime,workDescription,color);
-            newWork.setCustomer(customer);
+            Work newWork = new Work(workDate, cells, startTime, endTime,workDescription,color, dogName, dogRace, payedByCard, price);
+            Customer tmpCustomer = customers.get(customer.getPhoneNumber());
+            if(tmpCustomer == null)
+            {
+                newWork.setCustomer(customer);
+                customers.put(customer.getPhoneNumber(), customer);
+                List<String> phoneNumbers = new ArrayList<String>(customers.keySet());
+                rightPanel.setPhoneContent(phoneNumbers);
+            }
+            else
+            {
+                newWork.setCustomer(tmpCustomer);
+                tmpCustomer.setName(customer.getName());
+            }
             tmpWorker.putWork(workDate, newWork);
         }
         rightPanel.setRightEnabled(false);
         this.refreshWithScroll();
     }
-    public void editWork(Worker worker, Color color, String workDescription, Customer customer, Time startTime, Time endTime)
+    public void editWork(Worker worker, Color color, String workDescription, Customer customer, Time startTime, Time endTime, String dogName, String dogRace, boolean payedByCard, String price)
     {
         int row = table.getSelectedRow();
         int col = table.getSelectedColumn();
@@ -448,8 +476,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                     int endRow = this.getRowFromTimeTable(endTime) -1;
                     if(startRow == workCells.get(0).x && endRow == workCells.get(workCells.size()-1).x+1)
                     {
-                        edited = new Work(tmpWork.getDate(), workCells, startTime, endTime, workDescription, color);
-                        edited.setCustomer(customer);
+                        edited = new Work(tmpWork.getDate(), workCells, startTime, endTime, workDescription, color, dogName, dogRace, payedByCard, price);
                         toRemove = tmpWork;
                     }
                     else if(startRow < workCells.get(0).x)
@@ -508,10 +535,21 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         while(!workCells.get(workCells.size()-1).equals(newCell))
                             workCells.remove(workCells.size()-1);
                     }
-                    edited = new Work(tmpWork.getDate(), workCells, startTime, endTime, workDescription, color);
-                    edited.setCustomer(customer);
+                    edited = new Work(tmpWork.getDate(), workCells, startTime, endTime, workDescription, color, dogName, dogRace, payedByCard, price);
+                    Customer tmpCustomer = customers.get(customer.getPhoneNumber());
+                    if(tmpCustomer == null)
+                    {
+                        edited.setCustomer(customer);
+                        customers.put(customer.getPhoneNumber(), customer);
+                    }
+                    else
+                    {
+                        tmpCustomer.setName(customer.getName());
+                        edited.setCustomer(tmpCustomer);
+                    }
                     toRemove = tmpWork;  
                     workList.remove(toRemove);
+                    edited.getCustomer().removeWork(toRemove);
                     workList.add(edited);
                     break;
                 }
@@ -617,13 +655,19 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                 if(message == JOptionPane.YES_OPTION)
                 {
                     for(Work work : toDelete)
+                    {
+                        work.getCustomer().removeWork(work);
                         worksOnDay.remove(work);
+                    }
                 }
             }
             else
             {
                 for(Work work : toDelete)
-                        worksOnDay.remove(work);
+                {
+                    work.getCustomer().removeWork(work);
+                    worksOnDay.remove(work);
+                }
             }
             if(message == JOptionPane.YES_OPTION)
             {
@@ -849,7 +893,7 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                            }
                            Point tmpPoint = (Point)tmpWork.getCells().get(0);
                            table.changeCellColor(tmpWork.getCells(), tmpWork.getColor(), Boolean.TRUE);
-                           String stringValue = tmpWork.getCustomer().getName() + " \n " + tmpWork.getCustomer().getDogName() + " - " + tmpWork.getCustomer().getDogRace();
+                           String stringValue = tmpWork.getCustomer().getName() + " \n " + tmpWork.getDogName() + " - " + tmpWork.getDogRace();
                            List<String> tmpSubstrings = substrings(stringValue, tmpPoint.y, tmpWork.getCells().size());
                            int row = tmpPoint.x;
                            for(String substring : tmpSubstrings)
@@ -1153,6 +1197,10 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
             this.selectedByRight = true;
             this.assistRowSelection(startRow, endRow, col);
         }
+    }
+    public Map<String, Customer> getCustomers()
+    {
+        return this.customers;
     }
             
     @Override

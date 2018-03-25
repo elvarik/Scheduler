@@ -22,6 +22,10 @@ public class Work implements Serializable{
     private Time endTime;
     private Customer customer;
     private Date date;
+    private String dogName;
+    private String dogRace;
+    private boolean payedByCard;
+    private String price;
     //private Date 
     
     public Work (Date date,List <Point> cells,Time startTime, Time endTime, String description, Color color)
@@ -33,6 +37,19 @@ public class Work implements Serializable{
         this.color = color;
         this.date = date;
     }
+    public Work (Date date,List <Point> cells,Time startTime, Time endTime, String description, Color color, String dogName, String dogRace, boolean payedByCard, String price)
+    {
+        this.cells = cells;
+        this.workDescription = description;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.color = color;
+        this.date = date;
+        this.dogName = dogName;
+        this.dogRace = dogRace;
+        this.payedByCard = payedByCard;
+        this.price = price;
+    }
     public Date getDate()
     {
         return this.date;
@@ -40,6 +57,7 @@ public class Work implements Serializable{
     public void setCustomer(Customer customer)
     {
         this.customer = customer;
+        this.customer.addWork(this);
     }
     public Customer getCustomer()
     {
@@ -68,6 +86,22 @@ public class Work implements Serializable{
     public Color getColor()
     {
         return this.color;
+    }
+    
+    public String getDogName() {
+        return dogName;
+    }
+
+    public String getDogRace() {
+        return dogRace;
+    }
+    
+    public boolean isPayedByCard() {
+        return payedByCard;
+    }
+
+    public String getPrice() {
+        return price;
     }
     
 }
