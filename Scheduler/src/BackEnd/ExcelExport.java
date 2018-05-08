@@ -32,7 +32,28 @@ public class ExcelExport {
         this.pracownicy=workers;
         this.EXCEL_FILE_LOCATION=(".\\"+name+".xls");
         WritableWorkbook myFirstWbook = null;
-        JFileChooser fileChooser = new JFileChooser();
+        JFileChooser fileChooser = new JFileChooser(){
+        @Override
+        public void approveSelection(){
+            File f = getSelectedFile();
+            if(f.exists()){
+                int result = JOptionPane.showConfirmDialog(this,"Ten plik już istnieje, czy chcesz go podmienić?","Istniejący plik",JOptionPane.YES_NO_CANCEL_OPTION);
+                switch(result){
+                    case JOptionPane.YES_OPTION:
+                        super.approveSelection();
+                        return;
+                    case JOptionPane.NO_OPTION:
+                        return;
+                    case JOptionPane.CLOSED_OPTION:
+                        return;
+                    case JOptionPane.CANCEL_OPTION:
+                        cancelSelection();
+                        return;
+                }
+            }
+        super.approveSelection();
+    }        
+};
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Excel files", "xls","xlsx");
         fileChooser.setFileFilter(filter);
         int returnVal = fileChooser.showDialog(parent, "Zapisz jako");
