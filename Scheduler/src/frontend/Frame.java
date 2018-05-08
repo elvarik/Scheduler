@@ -23,11 +23,16 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import BackEnd.Date;
+import BackEnd.ExcelExport;
 import BackEnd.Time;
 import BackEnd.Work;
 import java.awt.Point;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JSplitPane;
+import jxl.write.WriteException;
 
 /**
  *
@@ -97,12 +102,22 @@ public class Frame extends JFrame implements ActionListener{
       
         JMenu file = new JMenu("Menu");
         file.setMnemonic(KeyEvent.VK_F);
-
+        JMenuItem MenuItem3 = new JMenuItem("Zapisz do Excela");
+        MenuItem3.setMnemonic(KeyEvent.VK_S);
         JMenuItem MenuItem1 = new JMenuItem("Wyjdź");
         MenuItem1.setMnemonic(KeyEvent.VK_W);
         MenuItem1.setToolTipText("Wyjdź z aplikacji");
         MenuItem1.addActionListener((ActionEvent event) -> {
             System.exit(0);
+        });
+        MenuItem3.addActionListener((ActionEvent event) -> {
+            try {
+                ExcelExport a = new ExcelExport("lista_prac",workers, this);
+            } catch (IOException ex) {
+                Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (WriteException ex) {
+                Logger.getLogger(Frame.class.getName()).log(Level.SEVERE, null, ex);
+            }
         });
         JMenuItem MenuItem2 = new JMenuItem("Zarządzaj pracownikami");
         MenuItem2.addActionListener((ActionEvent event) -> {
@@ -110,6 +125,7 @@ public class Frame extends JFrame implements ActionListener{
         });
         MenuItem2.setToolTipText("Dodaj lub usuń pracownika");
         file.add(MenuItem2);
+        file.add(MenuItem3);
         file.add(MenuItem1);
 
         menubar.add(file);

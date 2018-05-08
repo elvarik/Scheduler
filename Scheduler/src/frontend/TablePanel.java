@@ -925,7 +925,8 @@ public class TablePanel extends JPanel implements ActionListener, ItemListener, 
                         }
                         table.changeCellColor(tmpWorkCells, work.getColor(), Boolean.TRUE);
                         Point tmpPoint = (Point)work.getCells().get(0);
-                        List<String> tmpSubstrings = substrings(work.getWorkDescription(), col, work.getCells().size());
+                        String stringValue = work.getCustomer().getName() + " \n " + work.getDogName() + " - " + work.getDogRace();
+                        List<String> tmpSubstrings = substrings(stringValue, col, work.getCells().size());                        
                         int row = tmpPoint.x;
                         for(String substring : tmpSubstrings)
                         {

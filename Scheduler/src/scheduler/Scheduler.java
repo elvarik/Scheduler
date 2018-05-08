@@ -20,14 +20,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import BackEnd.ExcelExport;
+import jxl.write.WriteException;
 /**
  *
  * @author Hardkor
  */
 public class Scheduler{
     public static List<Worker> workers=new ArrayList<>();
-    public static void main(String[] args) throws FileNotFoundException, IOException {
+    public static void main(String[] args) throws FileNotFoundException, IOException, WriteException {
       //próba mikrofonu
         
         try {

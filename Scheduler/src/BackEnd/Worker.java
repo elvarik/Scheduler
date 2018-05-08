@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 /**
  *
  * @author Hardkor
@@ -22,7 +23,7 @@ public class Worker implements Serializable{
     public Worker(String nameSurname)
     {
         this.nameSurname = nameSurname;
-        works = new HashMap<>();
+        works = new TreeMap<>();
         eMail = "Pusty";
         phoneNumber = "Pusty";
     }
@@ -52,7 +53,7 @@ public class Worker implements Serializable{
     }
     public Map<Date, List<Work>> getWorksInMonth(int month, int year)
     {
-        Map<Date,List<Work>> tmpWorks = new HashMap<>();
+        Map<Date,List<Work>> tmpWorks = new TreeMap<>();
         Date [] dates = this.getWorksDates();
         for(int i = 0; i < dates.length; i++)
         {
@@ -66,6 +67,18 @@ public class Worker implements Serializable{
     public void setNameSurname(String nameSurname)
     {
         this.nameSurname = nameSurname;
+    }
+
+    public String getNameSurname() {
+        return nameSurname;
+    }
+
+    public Map<Date, List<Work>> getWorks() {
+        return works;
+    }
+
+    public String geteMail() {
+        return eMail;
     }
     public void setEmail(String eMail)
     {
